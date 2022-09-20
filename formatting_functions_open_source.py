@@ -130,3 +130,56 @@ def format_index(df, wb, sheet, col_width):
 
     # set index column width
     sheet.set_column('A:A', col_width)
+
+
+######################## DATA FORMATTING ##################################
+
+###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+
+def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width):
+
+    # This function will apply the specified numeric formatting to all data columns
+    ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
+    ## Meant only for dataframes with single row index, that have the same data type for ALL non-index columns
+    ### Note: this will set ALL data columns to the same width!
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+    ### data_type is the type of numeric data:
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    ### col_width is the width of the data columns
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+    elif data_type == 'decimal':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+    else:
+        raise ValueError(f"{data_type} is not a valid argument for data_type")
+
+    # getting column count of the data to use to set upper bound for formatting
+    df_column_count = len(df.columns)
+
+    ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
+    sheet.set_column(1, df_column_count, col_width, data_format)
