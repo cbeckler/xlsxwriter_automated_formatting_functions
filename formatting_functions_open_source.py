@@ -14,6 +14,7 @@ def last_col_highlight_header(df, wb, sheet, bg_color1, font_color1, bg_color2, 
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+    ### all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
     ### bg_color1 is the background color for your column headers
     ### font_color1 is the font color for your column headers
     ### bg_color2 is the background color for your LAST column header
