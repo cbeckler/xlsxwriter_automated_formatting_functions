@@ -103,7 +103,7 @@ def last_col_highlight_header(df, wb, sheet, bg_color1, font_color1, bg_color2, 
 
 ###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet, col_width):
+def format_index(df, wb, sheet):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
@@ -115,7 +115,6 @@ def format_index(df, wb, sheet, col_width):
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
-    ### col_width is the index column width
 
     # create index format
     index_format = wb.add_format({'bold':True,'right':True})
@@ -128,19 +127,26 @@ def format_index(df, wb, sheet, col_width):
         # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
         sheet.write(row_num + 1, 0, value, index_format)
 
+    # gets the length of all the values in the index
+    index_values = [len(value) for i, value in enumerate(df.index.values)]
+
+    # gets the max of the index values or the name of the index, whichever is greater
+    ## + 1 for 'wiggle room'
+    max_index_length = max(max(index_values), len(df.index.name)) + 1
+
     # set index column width
-    sheet.set_column('A:A', col_width)
+    sheet.set_column('A:A', max_index_length)
 
 
 ######################## DATA FORMATTING ##################################
 
-###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+###                      ANY SHAPE DATAFRAMES                        ###
 
-def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width):
+def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
 
     # This function will apply the specified numeric formatting to all data columns
     ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
-    ## Meant only for dataframes with single row index, that have the same data type for ALL non-index columns
+    ## Meant only for dataframes that have the same data type for ALL non-index columns, but can have any number of columns and indices
     ### Note: this will set ALL data columns to the same width!
 
     # ARGUMENTS
@@ -157,6 +163,11 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width):
     #       'percent' = integer percentage (ex 20%)
     #       'percent_1' = decimal percentage to tenths (ex 20.0%)
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+        
+    ## OPTIONAL:
+    ## these arguments have default values but can be specified if you want to change them from defaults
+    ## when changing them, you MUST type the argument = 
+    ## ie, format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=24)
     ### col_width is the width of the data columns
 
     # this if statement sets the formatting based off the data_type argument
@@ -180,6 +191,128 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width):
 
     # getting column count of the data to use to set upper bound for formatting
     df_column_count = len(df.columns)
+    
+    # getting row indices count of the data to use to set lower bound for formatting
+    num_row_indices = len(df.index.names)
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
-    sheet.set_column(1, df_column_count, col_width, data_format)
+    sheet.set_column(num_row_indices, df_column_count, col_width, data_format)
+
+
+###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
+
+def set_column_widths(df, wb, sheet):
+
+    # adapted from a solution found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+
+    # This function will automatically make all columns wide enough for their full column names to appear without being cut off
+    ## Meant for use on data with only one index of columns, but any number of row indices
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    # create a list holding the length of the name of each column
+    ## + 1 for 'wiggle room'
+    col_name_lengths = [len(name) + 1 for name in df.columns]
+
+    # get the count of how many row indices they are so we can skip those columns in the for loop
+    num_row_indices = len(df.index.names)
+
+    # iterating over the df columns:
+    for i, width in enumerate(col_name_lengths):
+        # apply the matching width to the column
+        sheet.set_column(i + num_row_indices, i + num_row_indices, width)  
+
+
+######################## EDGE BORDER FORMATTING ##################################
+
+###                      ANY SHAPE DATAFRAMES                        ###
+
+def table_bottom_border(df, wb, sheet):
+
+    # This function will apply formatting a bottom border to your table
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+    
+    # getting row count of the data to use to set lower bound for formatting
+    
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+    # get the row count (which doesn't count column rows)
+    data_rows = len(df)
+    # add the two together to get total row count
+    df_row_count = num_col_indices + data_rows
+
+    # getting count of number of row indices to set range for index formatting
+    num_row_indices = len(df.index.names)
+
+    # creating the format for the bottom border (actually top border on the cell below so we don't overwrite data)
+    bottom_format = wb.add_format({'top':True})
+
+    # this applies a top border to the cell below the last row fo data for all the columns except the index
+    for col_num, value in enumerate(df.columns.values):
+        # we are applying a top border to that to fake a bottom border on the table!
+        # "" is filling in the cell with nothing, leaving it blank
+        # col_num + row_indices will correctly skip the row index columns in the loop
+        sheet.write(df_row_count, col_num + num_row_indices, "", bottom_format)
+    
+    # this applies a top border to the cells below the last row of the index columns since they are excluded from the column for loop
+    for i in range(num_row_indices):
+        sheet.write(df_row_count, i, "", bottom_format)
+
+
+def table_right_border(df, wb, sheet):
+
+    # This function will apply formatting a right border to your table
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    # getting the column count
+
+    # getting the count of row index columns
+    num_row_indices = len(df.index.names)
+    # getting the count of regular columns
+    num_cols = len(df.columns)
+    # adding them together for total column count
+    total_cols = num_row_indices + num_cols
+
+    # getting row count of the data to use to set lower bound for formatting
+    
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+    # getting count of the data rows
+    data_rows = len(df)
+    # adding them together to get total rows
+    total_rows = num_col_indices + data_rows
+
+    # creating right border format--actually left to next cell over to avoid overwriting data
+    right_format = wb.add_format({'left':True})
+
+    # iterating over all our rows in our table:
+    for i in range(total_rows):
+        # apply the right format to the first column after our table
+        sheet.write(i, total_cols, "", right_format)
