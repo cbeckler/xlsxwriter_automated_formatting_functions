@@ -1,5 +1,9 @@
 # SUITE OF FUNCTIONS TO AUTOMATE EXCEL REPORT FORMATTING WITH XLSXWRITER
 
+######################## HEADER FORMATTING ##################################
+
+###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+
 def format_header(df, wb, sheet,  bg_color1, font_color1, bg_color2, font_color2):
 
     # This function will apply formatting to your header row    
@@ -93,3 +97,32 @@ def last_col_highlight_header(df, wb, sheet, bg_color1, font_color1, bg_color2, 
     df_index_name = df.index.name 
     # write to cell A1
     sheet.write('A1', df_index_name, index_format)
+
+
+######################## INDEX FORMATTING ##################################
+
+###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+
+def format_index(df, wb, sheet):
+
+    # This function will apply formatting to your index to bold it and give a right border
+    ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
+    ## Meant only for dataframes with single row index and columns   
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    # create index format
+    index_format = wb.add_format({'bold':True,'right':True})
+
+    ## this iterates through the rows.  this prevents the formatting being applied to empty cells
+    ## it applies formatting with the index value for the first column of the report
+    ## enumerate is called on the index to get those values
+    for row_num, value in enumerate(df.index.values):
+        # 1 is added to row num so that we don't start on 0 and overwrite our header!
+        # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
+        sheet.write(row_num + 1, 0, value, index_format)
