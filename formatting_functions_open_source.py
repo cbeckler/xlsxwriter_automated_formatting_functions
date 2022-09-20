@@ -103,7 +103,7 @@ def last_col_highlight_header(df, wb, sheet, bg_color1, font_color1, bg_color2, 
 
 ###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet):
+def format_index(df, wb, sheet, col_width):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
@@ -115,6 +115,7 @@ def format_index(df, wb, sheet):
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+    ### col_width is the index column width
 
     # create index format
     index_format = wb.add_format({'bold':True,'right':True})
@@ -126,3 +127,6 @@ def format_index(df, wb, sheet):
         # 1 is added to row num so that we don't start on 0 and overwrite our header!
         # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
         sheet.write(row_num + 1, 0, value, index_format)
+
+    # set index column width
+    sheet.set_column('A:A', col_width)
