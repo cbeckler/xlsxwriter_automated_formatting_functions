@@ -253,7 +253,7 @@ def table_bottom_border(df, wb, sheet):
     # then it will assign a value of 1 for column_indices
     except:
         num_col_indices = 1
-    # get the row count (which doesn't count column rows)
+    # get the row count (which doesn't count column header rows)
     data_rows = len(df)
     # add the two together to get total row count
     df_row_count = num_col_indices + data_rows
@@ -305,7 +305,7 @@ def table_right_border(df, wb, sheet):
     # then it will assign a value of 1 for column_indices
     except:
         num_col_indices = 1
-    # getting count of the data rows
+    # getting count of the data rows (which doesn't count column header rows)
     data_rows = len(df)
     # adding them together to get total rows
     total_rows = num_col_indices + data_rows
