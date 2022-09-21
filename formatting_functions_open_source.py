@@ -2,14 +2,14 @@
 
 ######################## HEADER FORMATTING ##################################
 
-###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+###                 ANY NUMBER ROW INDICES AND COLUMNS DATAFRAMES                 ###
 
-def format_header(df, wb, sheet,  bg_color1='#002387', font_color1='#FFFFFF', bg_color2='#002387', font_color2='#FFFFFF'):
+def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0):
 
     # This function will apply formatting to your header row    
-    ## Color for index can also be set to be different, or the same as normal header columns. It is the same by default
+    ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
     ### This function should be applied to data that has already been loaded into a worksheet via to_excel()
-    ### Meant only for dataframes with single row index and columns 
+    ### Meant only for dataframes with any number of row indices and columns 
 
     # ARGUMENTS
     
@@ -19,41 +19,54 @@ def format_header(df, wb, sheet,  bg_color1='#002387', font_color1='#FFFFFF', bg
     ### sheet is your worksheet
     
     ## OPTIONAL:
-    ### all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
-    #### bg_color1 is the background color for your column headers
-    #### font_color1 is the font color for your column headers
-    #### bg_color2 is the background color for your index header
-    #### font_color2 is the font color for your index headers
+    ## all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
+    ### header_bgcolor is the background color for your column headers
+    ### header_fontcolor is the font color for your column headers
+    ### index_bgcolor is the background color for your index header
+    ### index_fontcolor is the font color for your index headers
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+
+    # getting count of number of row indices to set range for index formatting
+    num_row_indices = len(df.index.names)
 
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':bg_color1,'font_color':font_color1,'align':'center','bottom':True})
+    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
 
     ## the header_format template is applied in the first row for all columns, which also keeps the value from the df header row
     ## the for loop goes over all columns. this prevents the formatting being applied to empty cells
     ### using enumerate and calling values will extract the column value (in this case, column header)
     for col_num, value in enumerate(df.columns.values):
         # normal header formatting is applied to all header columns
-        ## col_num + 1 here is so that formatting is applied to the column headers only
-        sheet.write(0, col_num + 1, value, header_format)
+        ## col_num + num_row_indices here is so that formatting is applied to the column headers only
+        sheet.write(header_offset, col_num + num_row_indices, value, header_format)
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
-    ## also allowing me to add R border to it only
-    index_format = wb.add_format({'bold':True,'bg_color':bg_color2,'font_color':font_color2,'align':'left','bottom':True,'right':True}) 
-    # the name of the index is selected and to be put in cell A1
-    df_index_name = df.index.name 
-    # instead of writing by row_number, column_number, it is possible to write to the specific cell (A1)
-    ## this is only recommended if this cell will be the same every time
-    sheet.write('A1', df_index_name, index_format)
+    ## also allowing adding R border to the rightmost index only
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
+    # the index headers to the left lack the right border
+    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
+
+    # iterating over the number of row indices present:
+    for i in range(num_row_indices):
+        # extract the name of the index
+        index_name = df.index.names[i]
+        # if the index is the last index in the range:
+        if i == max(range(num_row_indices)):
+            # insert the index name and apply the right border index format
+            sheet.write(header_offset, i, index_name, index_format)
+        else:
+            # else insert the index name and apply no right border index format
+            sheet.write(header_offset, i, index_name, index_left_format)
 
 
 
-def last_col_highlight_header(df, wb, sheet, bg_color1='#002387', font_color1='#FFFFFF', bg_color2='#00A111', font_color2='#FFFFFF', bg_color3='#002387', font_color3='#FFFFFF'):
+def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0):
 
     # This function will apply formatting to your headers that will automatically apply a different color to your last column to highlight it
     ## This is especially useful for time series: highlighting most recent year etc
-    ## Color for index can also be set to be different, or the same as normal header columns. Is the same as normal by default
-    ### This function should be applied to data that has already been loaded into a worksheet via to_excel() from dataframe
-    ### Meant only for dataframes with single row index and columns
+    ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
+    ### This function should be applied to data that has already been loaded into a worksheet via to_excel() 
+    ### Meant only for dataframes with any number row indices and columns  
 
     # ARGUMENTS
     
@@ -63,20 +76,24 @@ def last_col_highlight_header(df, wb, sheet, bg_color1='#002387', font_color1='#
     ### sheet is your worksheet
     
     ## OPTIONAL:
-    ### all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
-    #### bg_color1 is the background color for your column headers
-    #### font_color1 is the font color for your column headers
-    #### bg_color2 is the background color for your LAST column header
-    #### font_color2 is the font color for your LAST column header
-    #### bg_color3 is the background color for your index header
-    #### font_color3 is the font color for your index headers
-
+    ## certain colors have keywords, but for most precision entering hex codes for colors is best
+    ### header_bgcolor is the background color for your column headers
+    ### header_fontcolor is the font color for your column headers
+    ### hilite_bgcolor is the background color for your LAST column header
+    ### hilite_fontcolor is the font color for your LAST column header
+    ### index_bgcolor is the background color for your index header
+    ### index_fontcolor is the font color for your index headers
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    
     # getting column count of the data to use to set upper bound for formatting
     df_column_count = len(df.columns)
 
+    # getting count of number of row indices to set range for index formatting
+    num_row_indices = len(df.index.names)
+
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':bg_color1,'font_color':font_color1,'align':'center','bottom':True})
-    last_col_format = wb.add_format({'bold':True,'bg_color':bg_color2,'font_color':font_color2,'align':'center','bottom':True})
+    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
+    last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center','bottom':True})
 
     ## the header_format template is applied in the first row for all columns, which also keeps the value from the df header row
     ## for the last column, the color of the header row will be different, applying last_col_format
@@ -84,34 +101,44 @@ def last_col_highlight_header(df, wb, sheet, bg_color1='#002387', font_color1='#
     ### using enumerate and calling values will extract the column value (in this case, column header)
     for col_num, value in enumerate(df.columns.values):
         # because col_num starts at 0 in python, 1 must be added to it so that number of the last column equals the column count
-        # the special last_col_format formatting will only be applied to the last column
+        # the special latest_period formatting will only be applied to the last column
         if col_num + 1 == df_column_count:
             # the first argument of 0 specifies this will be applied to the first row of the excel spreadsheet
-            ## col_num + 1 here is so that formatting is applied to the column headers only
+            ## col_num + num_row_indices here is so that formatting is applied to the column headers only
             ## because the index row is not counted as a column by the loop
-            sheet.write(0, col_num + 1, value, last_col_format)
+            sheet.write(header_offset, col_num + num_row_indices, value, last_col_format)
         else:
             # normal header formatting is applied to all other columns
-            sheet.write(0, col_num + 1, value, header_format)
+            sheet.write(header_offset, col_num + num_row_indices, value, header_format)
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
-    ## also allows adding R border to it only
-    index_format = wb.add_format({'bold':True,'bg_color':bg_color3,'font_color':font_color3,'align':'left','bottom':True,'right':True}) 
-    # the name of the index is selected and to be put in cell A1
-    df_index_name = df.index.name 
-    # write to cell A1
-    sheet.write('A1', df_index_name, index_format)
+    ## also allowing adding R border to the rightmost index only
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
+    # the index headers to the left lack the right border
+    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
+
+    # iterating over the number of row indices present:
+    for i in range(num_row_indices):
+        # extract the name of the index
+        index_name = df.index.names[i]
+        # if the index is the last index in the range:
+        if i == max(range(num_row_indices)):
+            # insert the index name and apply the right border index format
+            sheet.write(header_offset, i, index_name, index_format)
+        else:
+            # else insert the index name and apply no right border index format
+            sheet.write(header_offset, i, index_name, index_left_format)
 
 
 ######################## INDEX FORMATTING ##################################
 
-###                 SINGLE ROW INDEX AND COLUMNS DATAFRAMES                 ###
+###                 SINGLE ROW INDEX AND ANY NUMBER COLUMN LEVELS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet):
+def format_index(df, wb, sheet, header_offset=0):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
-    ## Meant only for dataframes with single row index and columns   
+    ## Meant only for dataframes with single row index and and number of columns levels
 
     # ARGUMENTS
     
@@ -119,6 +146,16 @@ def format_index(df, wb, sheet):
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1        
 
     # create index format
     index_format = wb.add_format({'bold':True,'right':True})
@@ -129,7 +166,7 @@ def format_index(df, wb, sheet):
     for row_num, value in enumerate(df.index.values):
         # 1 is added to row num so that we don't start on 0 and overwrite our header!
         # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
-        sheet.write(row_num + 1, 0, value, index_format)
+        sheet.write(row_num + num_col_indices + header_offset , 0, value, index_format)
 
     # gets the length of all the values in the index
     index_values = [len(value) for i, value in enumerate(df.index.values)]
@@ -207,11 +244,12 @@ def set_column_widths(df, wb, sheet):
     # adapted from a solution found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
-    ## Meant for use on data with only one index of columns, but any number of row indices
+    ## Meant for use on data with only one level of columns, but any number of row indices
 
     # ARGUMENTS
     
     ## MANDATORY:
+    ## all of these MUST be specificed every time
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
@@ -233,7 +271,7 @@ def set_column_widths(df, wb, sheet):
 
 ###                      ANY SHAPE DATAFRAMES                        ###
 
-def table_bottom_border(df, wb, sheet):
+def table_bottom_border(df, wb, sheet, header_offset=0):
 
     # This function will apply formatting a bottom border to your table
     ## Can be used on any dataframe
@@ -244,6 +282,9 @@ def table_bottom_border(df, wb, sheet):
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     
     # getting row count of the data to use to set lower bound for formatting
     
@@ -253,10 +294,10 @@ def table_bottom_border(df, wb, sheet):
     # then it will assign a value of 1 for column_indices
     except:
         num_col_indices = 1
-    # get the row count (which doesn't count column header rows)
+    # get the row count (which doesn't count column rows)
     data_rows = len(df)
     # add the two together to get total row count
-    df_row_count = num_col_indices + data_rows
+    df_row_count = num_col_indices + data_rows + header_offset
 
     # getting count of number of row indices to set range for index formatting
     num_row_indices = len(df.index.names)
@@ -276,7 +317,7 @@ def table_bottom_border(df, wb, sheet):
         sheet.write(df_row_count, i, "", bottom_format)
 
 
-def table_right_border(df, wb, sheet):
+def table_right_border(df, wb, sheet, header_offset=0):
 
     # This function will apply formatting a right border to your table
     ## Can be used on any dataframe
@@ -287,6 +328,9 @@ def table_right_border(df, wb, sheet):
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
 
     # getting the column count
 
@@ -305,10 +349,10 @@ def table_right_border(df, wb, sheet):
     # then it will assign a value of 1 for column_indices
     except:
         num_col_indices = 1
-    # getting count of the data rows (which doesn't count column header rows)
+    # getting count of the data rows
     data_rows = len(df)
     # adding them together to get total rows
-    total_rows = num_col_indices + data_rows
+    total_rows = num_col_indices + data_rows + header_offset
 
     # creating right border format--actually left to next cell over to avoid overwriting data
     right_format = wb.add_format({'left':True})
