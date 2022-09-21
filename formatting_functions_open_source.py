@@ -130,6 +130,96 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
 ######################## INDEX FORMATTING ##################################
 
+###                      ANY SHAPE DATAFRAMES                        ###
+
+def merge_row_index_cells(df, wb, sheet, header_offset=0, index_offset=0):
+
+    # This function will merge the cells in your index columns that are from the same category
+    ## Can be used on any dataframe
+    ### NOTE: will break if not all index categories are present in each index!
+    ### NOTE: will also break if row indices are not arranged in least categories to most categories order (which is pandas standard)
+    ### This function will need to be used if creating a row with row multiindex data and not using to_excel() to import
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### index_offset specifies which index is being merged if there are more than 2 row indices. defaults to 0, the leftmost index
+    #### index_offset=1 would merge the index second from the left 
+
+    #getting count of row_indices
+    num_row_indices = len(df.index.names)
+
+    # determining how many rows are in the major (leftmost) index by dividing the total row count by index[0] unique values
+    rows_per_major_index = int(len(df)/len(df.index.unique(0)))
+
+    # getting the category count for the index we are merging, specificed by the index_offset argument
+    cat_count = len(df.index.unique(index_offset))
+
+    # get the count of rows per category for each index
+
+    # create a empty list to hold the values
+    cat_row_counts = []
+
+    # iterating through the number of row indices we have:
+    for i in range(num_row_indices):
+        # get the category count of the index
+        cat_count = len(df.index.unique(i))
+        # if it is the major index[0]:
+        if i == 0:
+            # rows_per_cat is the rows_per_major_index
+            rows_per_cat = rows_per_major_index
+        else:
+            # else rows_per_cat is the rows per major index divided by the category count of current index
+            rows_per_cat = int(rows_per_major_index/cat_count)
+        # append rows_per_cat value to list
+        cat_row_counts.append(rows_per_cat)
+
+    # if there is only one row index in the data:
+    if len(cat_row_counts) == 1:
+        # error message
+        raise Exception("Function is not meant for single row index datasets.")
+    else:
+        # the number of rows to merge is the cat_row_count value for our index
+        merge_n = cat_row_counts[index_offset]
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+
+    # get the number of rows in the data
+    data_rows = len(df)
+
+    # we need a list of rows to start cell merges on
+    ## these are the rows divisible by the number of cells to merge
+    ### create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
+    divisible_rows = [i for i in return_divisible_ints(0, data_rows, merge_n)]
+
+    # will return 1 too many values--drop the last one
+    divisible_rows.pop()
+
+    # iterating over row_nums from divisible rows:
+    for row_num in divisible_rows:
+        # merge           row_num + header rows for our starting cell
+        sheet.merge_range(row_num + num_col_indices + header_offset,
+                          # the index column
+                          index_offset,
+                          # row_num + header rows + amount of cells to merge - 1 for our ending cell
+                          ## -1 because the row_num cell is already accounted for
+                          row_num + num_col_indices + header_offset + merge_n - 1,
+                          # the index column
+                          index_offset,
+                          # message to fill in which will warn user if they forget to import index labels in subsequent steps
+                          'Forgot to Import Data!')
+
 ###                 SINGLE ROW INDEX AND ANY NUMBER COLUMN LEVELS DATAFRAMES                 ###
 
 def format_index(df, wb, sheet, header_offset=0):
