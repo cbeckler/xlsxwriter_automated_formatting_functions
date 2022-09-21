@@ -8,7 +8,6 @@ def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor =
 
     # This function will apply formatting to your header row    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
-    ### This function should be applied to data that has already been loaded into a worksheet via to_excel()
     ### Meant only for dataframes with any number of row indices and columns 
 
     # ARGUMENTS
@@ -65,7 +64,6 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     # This function will apply formatting to your headers that will automatically apply a different color to your last column to highlight it
     ## This is especially useful for time series: highlighting most recent year etc
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
-    ### This function should be applied to data that has already been loaded into a worksheet via to_excel() 
     ### Meant only for dataframes with any number row indices and columns  
 
     # ARGUMENTS
@@ -137,7 +135,6 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 def format_index(df, wb, sheet, header_offset=0):
 
     # This function will apply formatting to your index to bold it and give a right border
-    ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
     ## Meant only for dataframes with single row index and and number of columns levels
 
     # ARGUMENTS
@@ -186,7 +183,6 @@ def format_index(df, wb, sheet, header_offset=0):
 def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
 
     # This function will apply the specified numeric formatting to all data columns
-    ## This function should be applied to data that has already been loaded into a worksheet via to_excel()
     ## Meant only for dataframes that have the same data type for ALL non-index columns, but can have any number of columns and indices
     ### Note: this will set ALL data columns to the same width!
 
@@ -208,6 +204,8 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
     ## OPTIONAL:
     ### col_width is the width of the data columns
 
+    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
     if data_type == 'numeric':
@@ -225,7 +223,7 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
     elif data_type == 'percent_2':
         data_format = wb.add_format({'num_format':'0.00%'})
     else:
-        raise ValueError(f"{data_type} is not a valid argument for data_type")
+        raise ValueError(f"{data_format} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
     # getting column count of the data to use to set upper bound for formatting
     df_column_count = len(df.columns)
@@ -235,6 +233,49 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
     sheet.set_column(num_row_indices, df_column_count, col_width, data_format)
+
+
+def insert_data(df, wb, sheet, header_offset=0):
+    
+    # This function will insert your data in desired cells with a header_offset
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+
+    # getting the column count
+
+    # getting the count of row index columns
+    num_row_indices = len(df.index.names)
+    # getting the count of regular columns
+    num_cols = len(df.columns)
+    # adding them together for total column count
+    total_cols = num_row_indices + num_cols
+
+    # getting row count of the data to use to set lower bound for formatting
+    
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+
+    # iterating over our columns and excluding row indices:
+    for col_num in range(num_row_indices, total_cols):
+        # iterating over all rows containing data:
+        for row_num, value in enumerate(df.values):
+            # insert the data into the cell
+            ## row_num + num_col_indices + header_offset will give us the row accounting for header rows and offsets
+            ## for value, num_row_indices needs to be subtracted from col_num since we effectively added that to it in our range()
+            sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices])
 
 
 ###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
@@ -358,6 +399,48 @@ def table_right_border(df, wb, sheet, header_offset=0):
     right_format = wb.add_format({'left':True})
 
     # iterating over all our rows in our table:
-    for i in range(total_rows):
+    for i in range(header_offset, total_rows):
         # apply the right format to the first column after our table
         sheet.write(i, total_cols, "", right_format)
+
+
+######################## TITLE FORMATTING ##################################
+
+###                      ANY SHAPE DATAFRAMES                        ###
+
+def insert_title(df, wb, sheet, title, font_size=16, font_color='#000000', bg_color='#ffffff', align='left', row_num=0, col_num=0):
+
+    # This function will insert a title for your table
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ## all of these MUST be specificed every time
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+    ### title is your title, entered as a string
+
+    ## OPTIONAL:
+    ## these arguments have default values but can be specified if you want to change them from defaults
+    ## when changing them, you MUST type the argument = 
+    ## ie, insert_title(df, wb, sheet, 'LOC Analyis', align='center')
+    ### font_size is the font size for title. defaults to 16
+    ### font_color is the font color for title. defaults to black
+    ### bg_color is the background color the cell containing the title. defaults to white
+    ### align is the horizontal text alignmnet. defaults to left
+    ### cell is the cell where the title will be placed. default to A1    
+    ### row_num is the row to place your title, defaults to excel row 1
+    ### col_num is the column to place your title, defaults to excel column A
+
+    # raising an error message to tell the user if they have entered an invalid alignmnet argument
+    valid_alignments = ['left','center','right','fill','justify','center_across','distributed']
+
+    if align not in valid_alignments:
+        raise ValueError(f"{align} is not a valid alignment option. Valid options are: {valid_alignments}")
+
+    # creating title format
+    title_format = wb.add_format({'bold':True, 'font_color':font_color, 'bg_color':bg_color, 'font_size':font_size,'align':align})
+
+    # applying title format and inserting title
+    sheet.write(row_num, col_num, title, title_format)
