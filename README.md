@@ -19,7 +19,7 @@ An example of how a report could be formatted with two dimensional data, with a 
 
 ![two dimensional raw data csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/1_2D_before.png)
 
-The `last_col_highlight_header`, `format_index`, `format_single_numeric_data_type_df`, `set_column_widths`, `table_bottom_border`, and `table_right_border` functions were applied to the data after it had been loaded in and had its index set. The resulting report tab looked like this:
+The `last_col_highlight_header`, `format_index`, `insert_data`, `format_single_numeric_data_type_df`, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` functions were applied to the data after it had been loaded in and had its index set, with a header_offset of 2. The resulting report tab looked like this:
 
 ![two dimensional data report table](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/1_2D_after.png)
 
