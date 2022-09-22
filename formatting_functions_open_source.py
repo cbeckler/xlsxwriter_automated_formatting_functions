@@ -186,6 +186,7 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
 def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
 
     from unittest import skip
+    from utility_functions import return_divisible_ints
 
     # This function will merge the cells in your index columns that are from the same category
     ## Can be used on any row multiindex dataframe
