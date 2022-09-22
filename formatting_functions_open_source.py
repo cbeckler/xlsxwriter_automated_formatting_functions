@@ -179,7 +179,9 @@ def format_index(df, wb, sheet, header_offset=0):
 
 ###                ROW MULTIINDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
-def merge_row_index_cells(df, wb, sheet, header_offset=0, index_offset=0):
+def merge_row_index_cells(df, wb, sheet, header_offset=0):
+
+    from unittest import skip
 
     # This function will merge the cells in your index columns that are from the same category
     ## Can be used on any row multiindex dataframe
@@ -195,21 +197,32 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, index_offset=0):
     ### sheet is your worksheet
 
     ## OPTIONAL:
-    ## these arguments have default values but can be specified if you want to change them from defaults
-    ## when changing them, you MUST type the argument = 
-    ## ie, merge_row_index_cells(df, wb, sheet, index_offset=1)
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
-    ### index_offset specifies which index is being merged if there are more than 2 row indices. defaults to 0, the leftmost index
-    #### index_offset=1 would merge the index second from the left 
+    
 
     #getting count of row_indices
     num_row_indices = len(df.index.names)
 
+    # exit function with error if it is not a multiindex
+    if num_row_indices == 1:
+        raise Exception("Function is not meant for single row index datasets.")
+    else:
+        pass
+
     # determining how many rows are in the major (leftmost) index by dividing the total row count by index[0] unique values
     rows_per_major_index = int(len(df)/len(df.index.unique(0)))
 
-    # getting the category count for the index we are merging, specificed by the index_offset argument
-    cat_count = len(df.index.unique(index_offset))
+    # getting the count of categories per index
+    
+    # create an empty list to hold the values:
+    cat_counts = []
+
+    # iterating over our row indices:
+    for i in range(num_row_indices):
+        # get count of unique values
+        cat_count = len(df.index.unique(i))
+        # append them to list
+        cat_counts.append(cat_count)
 
     # get the count of rows per category for each index
 
@@ -226,18 +239,11 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, index_offset=0):
             rows_per_cat = rows_per_major_index
         else:
             # else rows_per_cat is the rows per major index divided by the category count of current index
-            rows_per_cat = int(rows_per_major_index/cat_count)
+            rows_per_cat = int(rows_per_major_index/cat_counts[i])
         # append rows_per_cat value to list
         cat_row_counts.append(rows_per_cat)
 
-    # if there is only one row index in the data:
-    if len(cat_row_counts) == 1:
-        # error message
-        raise Exception("Function is not meant for single row index datasets.")
-    else:
-        # the number of rows to merge is the cat_row_count value for our index
-        merge_n = cat_row_counts[index_offset]
-
+    
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
         num_col_indices = len(df.columns.levshape)
@@ -248,27 +254,31 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, index_offset=0):
     # get the number of rows in the data
     data_rows = len(df)
 
-    # we need a list of rows to start cell merges on
-    ## these are the rows divisible by the number of cells to merge
-    ### create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
-    divisible_rows = [i for i in return_divisible_ints(0, data_rows, merge_n)]
-
-    # will return 1 too many values--drop the last one
-    divisible_rows.pop()
-
-    # iterating over row_nums from divisible rows:
-    for row_num in divisible_rows:
-        # merge           row_num + header rows for our starting cell
-        sheet.merge_range(row_num + num_col_indices + header_offset,
+    # need a list of rows to start cell merges on
+    
+    # iterating over our numbers of cells to merge per index:
+    for i, merge_n in enumerate(cat_row_counts):
+        # skip if there are no cells to merge
+        if merge_n == 1:
+            skip 
+        else:
+            # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
+            divisible_rows = [j for j in return_divisible_ints(0, data_rows, merge_n)]
+            # will return 1 too many values--drop the last one
+            divisible_rows.pop()
+            for row_num in divisible_rows:
+                # merge cells     starting cell is row_num + num_col_indices + header_offset
+                sheet.merge_range(row_num + num_col_indices + header_offset,
                           # the index column
-                          index_offset,
+                          i,
                           # row_num + header rows + amount of cells to merge - 1 for our ending cell
                           ## -1 because the row_num cell is already accounted for
                           row_num + num_col_indices + header_offset + merge_n - 1,
                           # the index column
-                          index_offset,
+                          i,
                           # message to fill in which will warn user if they forget to import index labels in subsequent steps
                           'Forgot to Import Data!')
+
 
 
 def format_row_multiindex(df, wb, sheet, header_offset=0):
