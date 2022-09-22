@@ -718,6 +718,50 @@ def table_right_border(df, wb, sheet, header_offset=0, column_offset=0):
         sheet.write(row_num, total_cols + column_offset, "", right_format)
 
 
+def table_left_border(df, wb, sheet, header_offset=0, column_offset=0):
+
+    # This function will apply formatting a left border to your table
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+
+   # getting row count of the data to use to set lower bound for formatting
+    
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+    # getting count of the data rows
+    data_rows = len(df)
+    # adding them together to get total rows
+    total_rows = num_col_indices + data_rows + header_offset
+
+    # creating left border format--actually right to next cell over to avoid overwriting data
+    left_format = wb.add_format({'right':True})
+
+    # set column_offset to 1 if applying border to column A so code doesn't break
+    if column_offset == 0:
+        column_offset == 1
+    else:
+        column_offset == column_offset
+
+    # iterating over all our rows in our table:
+    for row_num in range(header_offset, total_rows):
+        # apply the left format to the first column before our table
+        sheet.write(row_num, column_offset - 1, "", left_format) 
+
+
 ######################## TITLE FORMATTING ##################################
 
 ###                      ANY SHAPE DATAFRAMES                        ###
