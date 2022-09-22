@@ -539,6 +539,8 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
 
 def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
+    import numpy as np
+
     # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
