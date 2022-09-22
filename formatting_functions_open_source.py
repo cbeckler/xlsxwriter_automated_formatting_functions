@@ -4,7 +4,7 @@
 
 ###                 ANY NUMBER ROW INDICES AND COLUMNS DATAFRAMES                 ###
 
-def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0):
+def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0):
 
     # This function will apply formatting to your header row    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -24,6 +24,7 @@ def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor =
     ### index_bgcolor is the background color for your index header
     ### index_fontcolor is the font color for your index headers
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     # getting count of number of row indices to set range for index formatting
     num_row_indices = len(df.index.names)
@@ -37,29 +38,29 @@ def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor =
     for col_num, value in enumerate(df.columns.values):
         # normal header formatting is applied to all header columns
         ## col_num + num_row_indices here is so that formatting is applied to the column headers only
-        sheet.write(header_offset, col_num + num_row_indices, value, header_format)
+        sheet.write(header_offset, col_num + num_row_indices + column_offset, value, header_format)
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
-    ## also allowing adding R border to the rightmost index only
+    ## also allowing me to add R border to the rightmost index only
     index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
     # the index headers to the left lack the right border
     index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
 
     # iterating over the number of row indices present:
-    for i in range(num_row_indices):
-        # extract the name of the index
-        index_name = df.index.names[i]
+    for col_num in range(num_row_indices):
+        # we extract the name of the index
+        index_name = df.index.names[col_num]
         # if the index is the last index in the range:
-        if i == max(range(num_row_indices)):
+        if col_num == max(range(num_row_indices)):
             # insert the index name and apply the right border index format
-            sheet.write(header_offset, i, index_name, index_format)
+            sheet.write(header_offset, col_num + column_offset, index_name, index_format)
         else:
             # else insert the index name and apply no right border index format
-            sheet.write(header_offset, i, index_name, index_left_format)
+            sheet.write(header_offset, col_num + column_offset, index_name, index_left_format)
 
 
 
-def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0):
+def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0):
 
     # This function will apply formatting to your headers that will automatically apply a different color to your last column to highlight it
     ## This is especially useful for time series: highlighting most recent year etc
@@ -82,8 +83,10 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     ### index_bgcolor is the background color for your index header
     ### index_fontcolor is the font color for your index headers
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     
     # getting column count of the data to use to set upper bound for formatting
+    ## the len function provides the length of objects--in this case, the list of columns
     df_column_count = len(df.columns)
 
     # getting count of number of row indices to set range for index formatting
@@ -104,28 +107,28 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
             # the first argument of 0 specifies this will be applied to the first row of the excel spreadsheet
             ## col_num + num_row_indices here is so that formatting is applied to the column headers only
             ## because the index row is not counted as a column by the loop
-            sheet.write(header_offset, col_num + num_row_indices, value, last_col_format)
+            sheet.write(header_offset, col_num + num_row_indices + column_offset, value, last_col_format)
         else:
             # normal header formatting is applied to all other columns
-            sheet.write(header_offset, col_num + num_row_indices, value, header_format)
+            sheet.write(header_offset, col_num + num_row_indices + column_offset, value, header_format)
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
-    ## also allowing adding R border to the rightmost index only
+    ## also allowing me to add R border to the rightmost index only
     index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
     # the index headers to the left lack the right border
     index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
 
     # iterating over the number of row indices present:
-    for i in range(num_row_indices):
-        # extract the name of the index
-        index_name = df.index.names[i]
+    for col_num in range(num_row_indices):
+        # we extract the name of the index
+        index_name = df.index.names[col_num]
         # if the index is the last index in the range:
-        if i == max(range(num_row_indices)):
+        if col_num == max(range(num_row_indices)):
             # insert the index name and apply the right border index format
-            sheet.write(header_offset, i, index_name, index_format)
+            sheet.write(header_offset, col_num + column_offset, index_name, index_format)
         else:
             # else insert the index name and apply no right border index format
-            sheet.write(header_offset, i, index_name, index_left_format)
+            sheet.write(header_offset, col_num + column_offset, index_name, index_left_format)
 
 
 ######################## INDEX FORMATTING ##################################
@@ -133,7 +136,7 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
 ###                 SINGLE ROW INDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet, header_offset=0):
+def format_index(df, wb, sheet, header_offset=0, column_offset=0):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with single row index and any number of column levels
@@ -147,6 +150,7 @@ def format_index(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
         
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
@@ -164,22 +168,22 @@ def format_index(df, wb, sheet, header_offset=0):
     for row_num, value in enumerate(df.index.values):
         # 1 is added to row num so that we don't start on 0 and overwrite our header!
         # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
-        sheet.write(row_num + num_col_indices + header_offset, 0, value, index_format)
+        sheet.write(row_num + num_col_indices + header_offset, column_offset, value, index_format)
 
     # gets the length of all the values in the index
-    index_values = [len(value) for i, value in enumerate(df.index.values)]
+    index_values = [len(value) for row_num, value in enumerate(df.index.values)]
 
     # gets the max of the index values or the name of the index, whichever is greater
     ## + 1 for 'wiggle room'
     max_index_length = max(max(index_values), len(df.index.name)) + 1
 
     # set index column width
-    sheet.set_column('A:A', max_index_length)
+    sheet.set_column(column_offset, column_offset, max_index_length)
 
 
 ###                ROW MULTIINDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
-def merge_row_index_cells(df, wb, sheet, header_offset=0):
+def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
 
     from unittest import skip
 
@@ -198,6 +202,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     
 
     #getting count of row_indices
@@ -218,9 +223,9 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0):
     cat_counts = []
 
     # iterating over our row indices:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # get count of unique values
-        cat_count = len(df.index.unique(i))
+        cat_count = len(df.index.unique(col_num))
         # append them to list
         cat_counts.append(cat_count)
 
@@ -230,16 +235,16 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0):
     cat_row_counts = []
 
     # iterating through the number of row indices we have:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # get the category count of the index
-        cat_count = len(df.index.unique(i))
+        cat_count = len(df.index.unique(col_num))
         # if it is the major index[0]:
-        if i == 0:
+        if col_num == 0:
             # rows_per_cat is the rows_per_major_index
             rows_per_cat = rows_per_major_index
         else:
             # else rows_per_cat is the rows per major index divided by the category count of current index
-            rows_per_cat = int(rows_per_major_index/cat_counts[i])
+            rows_per_cat = int(rows_per_major_index/cat_counts[col_num])
         # append rows_per_cat value to list
         cat_row_counts.append(rows_per_cat)
 
@@ -257,33 +262,32 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0):
     # need a list of rows to start cell merges on
     
     # iterating over our numbers of cells to merge per index:
-    for i, merge_n in enumerate(cat_row_counts):
+    for col_num, merge_n in enumerate(cat_row_counts):
         # skip if there are no cells to merge
         if merge_n == 1:
             skip 
         else:
             # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
-            divisible_rows = [j for j in return_divisible_ints(0, data_rows, merge_n)]
+            divisible_rows = [i for i in return_divisible_ints(0, data_rows, merge_n)]
             # will return 1 too many values--drop the last one
             divisible_rows.pop()
             for row_num in divisible_rows:
                 # merge cells     starting cell is row_num + num_col_indices + header_offset
                 sheet.merge_range(row_num + num_col_indices + header_offset,
                           # the index column
-                          i,
+                          col_num + column_offset,
                           # row_num + header rows + amount of cells to merge - 1 for our ending cell
                           ## -1 because the row_num cell is already accounted for
                           row_num + num_col_indices + header_offset + merge_n - 1,
                           # the index column
-                          i,
+                          col_num + column_offset,
                           # message to fill in which will warn user if they forget to import index labels in subsequent steps
                           'Forgot to Import Data!')
 
 
+def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
 
-def format_row_multiindex(df, wb, sheet, header_offset=0):
-
-    # This function will apply formatting to your index to bold it and give a right border and bottom border between major index categories
+    # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with row mulitiindex and and number of columns levels
     ### NOTE: will break if not all index categories are present in each index!
     ### NOTE: will also break if row indices are not arranged in least categories to most categories order (which is pandas standard)
@@ -298,6 +302,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     #getting count of row_indices
     num_row_indices = len(df.index.names)
@@ -314,9 +319,9 @@ def format_row_multiindex(df, wb, sheet, header_offset=0):
     cat_counts = []
 
     # iterating over our row indices:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # get count of unique values
-        cat_count = len(df.index.unique(i))
+        cat_count = len(df.index.unique(col_num))
         # append them to list
         cat_counts.append(cat_count)
 
@@ -336,35 +341,35 @@ def format_row_multiindex(df, wb, sheet, header_offset=0):
     last_index_bottom_format = wb.add_format({'bold':True,'valign':'vcenter','bottom':True,'right':True})
 
     # iterating over our indices:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # if it is the first (major) index:
-        if i == 0:
+        if col_num == 0:
             # iterating over the values in the index:
-            for row_num, value in enumerate(df.index.get_level_values(i)):
+            for row_num, value in enumerate(df.index.get_level_values(col_num)):
                 # insert index value and apply bottom border index format to all cells
-                sheet.write(row_num + num_col_indices + header_offset, i, value, index_bottom_row_format)
+                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_bottom_row_format)
         else:
             # if it is the last index before the data:
-            if i == max(range(num_row_indices)):
+            if col_num == max(range(num_row_indices)):
                 # iterating over the values in the index:
-                for row_num, value in enumerate(df.index.get_level_values(i)):
+                for row_num, value in enumerate(df.index.get_level_values(col_num)):
                     # if it is the last row in the index category:
-                    if (row_num + 1)%cat_counts[i]==0:
+                    if (row_num + 1)%cat_counts[col_num]==0:
                         # insert index value and apply right and bottom border index formatting
-                        sheet.write(row_num + num_col_indices + header_offset, i, value, last_index_bottom_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, last_index_bottom_format)
                     else:
                         # else insert index value and apply right border index formating
-                        sheet.write(row_num + num_col_indices + header_offset, i, value, last_index_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, last_index_format)
             else:
                 # for all other indices iterate over index values:
-                for row_num, value in enumerate(df.index.get_level_values(i)):
+                for row_num, value in enumerate(df.index.get_level_values(col_num)):
                     # if it is the last row in the index category:
-                    if (row_num + 1)%cat_counts[i]==0:
+                    if (row_num + 1)%cat_counts[col_num]==0:
                         # insert index value and apply bottom border index formatting
-                        sheet.write(row_num + num_col_indices + header_offset, i, value, index_bottom_row_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_bottom_row_format)
                     else:
                         # else insert index value and apply no border index formating
-                        sheet.write(row_num + num_col_indices + header_offset, i, value, index_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_format)
 
     # set index column widths 
 
@@ -372,26 +377,27 @@ def format_row_multiindex(df, wb, sheet, header_offset=0):
     max_index_lengths = []
 
     # iterating over row indices:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # store the length of all index values in a list
-        index_values = [len(value) for j, value in enumerate(df.index.get_level_values(i))]
+        index_values = [len(value) for i, value in enumerate(df.index.get_level_values(col_num))]
         # get the max width of the longest value or title, whichever is longer
         ## + 1 for 'wiggle room'
-        max_index_length = max(max(index_values), len(df.index.names[i])) + 1
+        max_index_length = max(max(index_values), len(df.index.names[col_num])) + 1
         # add that to the max_index_lengths list
         max_index_lengths.append(max_index_length)
 
     # iterating over row indices again:
-    for i in range(num_row_indices):
+    for col_num in range(num_row_indices):
         # set width to matching max index length
-        sheet.set_column(i, i, max_index_lengths[i])
+        sheet.set_column(col_num + column_offset, col_num + column_offset, max_index_lengths[col_num])
+    
 
 
 ######################## DATA FORMATTING ##################################
 
 ###                      ANY SHAPE DATAFRAMES                        ###
 
-def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
+def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, column_offset=0):
 
     # This function will apply the specified numeric formatting to all data columns
     ## Meant only for dataframes that have the same data type for ALL non-index columns, but can have any number of columns and indices
@@ -413,8 +419,10 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
         
     ## OPTIONAL:
-    ### col_width is the width of the data columns
+    ### col_width is the width of the data columns. defaults to 14
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
+    # list of valid dtype args
     valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
 
     # this if statement sets the formatting based off the data_type argument
@@ -443,10 +451,10 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
     num_row_indices = len(df.index.names)
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
-    sheet.set_column(num_row_indices, df_column_count, col_width, data_format)
+    sheet.set_column(num_row_indices + column_offset, df_column_count + column_offset, col_width, data_format)
 
 
-def insert_data(df, wb, sheet, header_offset=0, data_type=None):
+def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
     
     # This function will insert your data in desired cells with a header_offset
     ## Can be used on any dataframe
@@ -460,6 +468,7 @@ def insert_data(df, wb, sheet, header_offset=0, data_type=None):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### data_type is the type of numeric data:
     #### this arg should only be used if all your data is the same data type!
     #       'numeric' = comma-separated integer (ex 1,200)
@@ -470,6 +479,7 @@ def insert_data(df, wb, sheet, header_offset=0, data_type=None):
     #       'percent_1' = decimal percentage to tenths (ex 20.0%)
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
 
+    # list of valid dtype args
     valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
 
     # this if statement sets the formatting based off the data_type argument
@@ -519,15 +529,15 @@ def insert_data(df, wb, sheet, header_offset=0, data_type=None):
             if data_type == None:
                 # insert the data into the cell matching the postion in the datatframe
                 ## value[] has num_row_indices subtracted from it for indexing since that was added to the col_num in range()
-                sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices])
+                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
             else:
                 # insert the data into the cell and apply specified formatting
-                sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices], data_format)
+                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
 
 
 ###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
-def set_column_widths(df, wb, sheet, method='headers'):
+def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
     # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
@@ -543,15 +553,17 @@ def set_column_widths(df, wb, sheet, method='headers'):
     ### sheet is your worksheet
 
     ## OPTIONAL:
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### method is how the width is set:
     #       'header' sets width based on the length of column names. is default
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
     
 
-    # error if incorrect method arg
+    # list of valid method args
     valid_methods = ['headers', 'data', 'all']
 
+    # error if valid method arg not used
     if method not in valid_methods:
         raise ValueError(f"{method} is not a valid method option. Valid methods are: {valid_methods}")
     else:
@@ -566,20 +578,20 @@ def set_column_widths(df, wb, sheet, method='headers'):
     max_data_lengths = []
         
     # iterating over the data columns:    
-    for i in list(df):
+    for col in list(df):
         # store their values in a list
-        values = df[i].tolist()
+        values = df[col].tolist()
         # create an empty list to store the lengths
         value_lengths = []
         # iterating over the values list:
-        for j, value in enumerate(values):
+        for col_num, value in enumerate(values):
             # get the length in characters of each value
             length = len(str(value))
             # add it to the value_lengths list
             value_lengths.append(length)
             # if it is the final iteration over the values with the completed value_lengths list for the column:
             ## + 1 since python numbering starts at 0
-            if j + 1 == len(values):
+            if col_num + 1 == len(values):
                 # get the max width value
                 ## + 1 for 'wiggle room'
                 max_data_width = max(value_lengths) + 1
@@ -601,16 +613,16 @@ def set_column_widths(df, wb, sheet, method='headers'):
         width_list = max_all_lengths 
 
     # iterating over the df columns:
-    for i, width in enumerate(width_list):
+    for col_num, width in enumerate(width_list):
         # apply the matching width to the column
-        sheet.set_column(i + num_row_indices, i + num_row_indices, width)  
+        sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, width)  
 
 
 ######################## EDGE BORDER FORMATTING ##################################
 
 ###                      ANY SHAPE DATAFRAMES                        ###
 
-def table_bottom_border(df, wb, sheet, header_offset=0):
+def table_bottom_border(df, wb, sheet, header_offset=0, column_offset=0):
 
     # This function will apply formatting a bottom border to your table
     ## Can be used on any dataframe
@@ -624,6 +636,7 @@ def table_bottom_border(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     
     # getting row count of the data to use to set lower bound for formatting
     
@@ -649,14 +662,14 @@ def table_bottom_border(df, wb, sheet, header_offset=0):
         # we are applying a top border to that to fake a bottom border on the table!
         # "" is filling in the cell with nothing, leaving it blank
         # col_num + row_indices will correctly skip the row index columns in the loop
-        sheet.write(df_row_count, col_num + num_row_indices, "", bottom_format)
+        sheet.write(df_row_count, col_num + num_row_indices + column_offset, "", bottom_format)
     
     # this applies a top border to the cells below the last row of the index columns since they are excluded from the column for loop
-    for i in range(num_row_indices):
-        sheet.write(df_row_count, i, "", bottom_format)
+    for col_num in range(num_row_indices):
+        sheet.write(df_row_count, col_num + column_offset, "", bottom_format)
 
 
-def table_right_border(df, wb, sheet, header_offset=0):
+def table_right_border(df, wb, sheet, header_offset=0, column_offset=0):
 
     # This function will apply formatting a right border to your table
     ## Can be used on any dataframe
@@ -670,6 +683,7 @@ def table_right_border(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     # getting the column count
 
@@ -697,9 +711,9 @@ def table_right_border(df, wb, sheet, header_offset=0):
     right_format = wb.add_format({'left':True})
 
     # iterating over all our rows in our table:
-    for i in range(header_offset, total_rows):
+    for row_num in range(header_offset, total_rows):
         # apply the right format to the first column after our table
-        sheet.write(i, total_cols, "", right_format)
+        sheet.write(row_num, total_cols + column_offset, "", right_format)
 
 
 ######################## TITLE FORMATTING ##################################
@@ -713,16 +727,12 @@ def insert_title(df, wb, sheet, title, font_size=16, font_color='#000000', bg_co
     # ARGUMENTS
     
     ## MANDATORY:
-    ## all of these MUST be specificed every time
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
     ### title is your title, entered as a string
 
     ## OPTIONAL:
-    ## these arguments have default values but can be specified if you want to change them from defaults
-    ## when changing them, you MUST type the argument = 
-    ## ie, insert_title(df, wb, sheet, 'LOC Analyis', align='center')
     ### font_size is the font size for title. defaults to 16
     ### font_color is the font color for title. defaults to black
     ### bg_color is the background color the cell containing the title. defaults to white
