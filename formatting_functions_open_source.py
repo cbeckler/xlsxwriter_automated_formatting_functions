@@ -244,11 +244,10 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
             # rows_per_cat is the rows_per_major_index
             rows_per_cat = rows_per_major_index
         else:
-            # else rows_per_cat is the rows per major index divided by the category count of current index
-            rows_per_cat = int(rows_per_major_index/cat_counts[col_num])
+            # else rows_per_cat of last index divided by the category count of current index
+            rows_per_cat = int(cat_row_counts[col_num-1]/cat_counts[col_num])
         # append rows_per_cat value to list
         cat_row_counts.append(rows_per_cat)
-
     
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
@@ -263,9 +262,9 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
     # need a list of rows to start cell merges on
     
     # iterating over our numbers of cells to merge per index:
-    for col_num, merge_n in enumerate(cat_row_counts):
-        # skip if there are no cells to merge
-        if merge_n == 0:
+    for col_num, merge_n in enumerate(cat_row_counts):        
+        #skip if there are no cells to merge
+        if merge_n == 1:
             skip 
         else:
             # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
