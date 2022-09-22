@@ -517,30 +517,81 @@ def insert_data(df, wb, sheet, header_offset=0, data_type=None):
 
 ###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
-def set_column_widths(df, wb, sheet):
+def set_column_widths(df, wb, sheet, method='headers'):
 
-    # adapted from a solution found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+    # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
-    ## Meant for use on data with only one level of columns, but any number of row indices
+    ## Can be used for width based on data or data and header though
+    ## Meant for use on data with only one index of columns, but any number of row indices
 
     # ARGUMENTS
     
     ## MANDATORY:
-    ## all of these MUST be specificed every time
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### method is how the width is set:
+    #       'header' sets width based on the length of column names. is default
+    #       'data' sets width based on the length of the longest data point in the column
+    #       'all' sets width based off the column name or longest data point, whichever is larger
+    
+
+    # error if incorrect method arg
+    valid_methods = ['headers', 'data', 'all']
+
+    if method not in valid_methods:
+        raise ValueError(f"{method} is not a valid method option. Valid methods are: {valid_methods}")
+    else:
+        pass
+    
 
     # create a list holding the length of the name of each column
     ## + 1 for 'wiggle room'
     col_name_lengths = [len(name) + 1 for name in df.columns]
 
+    # create a list holding the max length of the data in each column
+    max_data_lengths = []
+        
+    # iterating over the data columns:    
+    for i in list(df):
+        # store their values in a list
+        values = df[i].tolist()
+        # create an empty list to store the lengths
+        value_lengths = []
+        # iterating over the values list:
+        for j, value in enumerate(values):
+            # get the length in characters of each value
+            length = len(str(value))
+            # add it to the value_lengths list
+            value_lengths.append(length)
+            # if it is the final iteration over the values with the completed value_lengths list for the column:
+            ## + 1 since python numbering starts at 0
+            if j + 1 == len(values):
+                # get the max width value
+                ## + 1 for 'wiggle room'
+                max_data_width = max(value_lengths) + 1
+                # append it to our data lengths list
+                max_data_lengths.append(max_data_width)   
+
+    # create a list for the max of data and column width, whichever is greater
+    max_all_lengths = np.maximum(col_name_lengths, max_data_lengths)
+    
     # get the count of how many row indices they are so we can skip those columns in the for loop
     num_row_indices = len(df.index.names)
 
+    # choosing list to use based on method:
+    if method == 'headers':
+        width_list = col_name_lengths
+    elif method == 'data':
+        width_list = max_data_lengths
+    elif method ==  'all':
+        width_list = max_all_lengths 
+
     # iterating over the df columns:
-    for i, width in enumerate(col_name_lengths):
+    for i, width in enumerate(width_list):
         # apply the matching width to the column
         sheet.set_column(i + num_row_indices, i + num_row_indices, width)  
 
