@@ -539,8 +539,6 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
 
 def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
-    import numpy as np
-
     # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
@@ -619,6 +617,113 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
         # apply the matching width to the column
         sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, width)  
 
+
+def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
+
+    # This function will insert your data in desired cells and underline the last row per major index category
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### data_type is the type of numeric data:
+    #### this arg should only be used if all your data is the same data type!
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+
+    #getting count of row_indices
+    num_row_indices = len(df.index.names)
+
+    # exit function with error if it is not a multiindex
+    if num_row_indices == 1:
+        raise Exception("Function is not meant for single row index datasets.")
+    else:
+        pass
+
+    # list of valid dtype args
+    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0','bottom':True})
+    elif data_type == 'decimal':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0.00','bottom':True})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+        data_bottom_format = wb.add_format({'num_format':'$#,##0','bottom':True})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+        data_bottom_format = wb.add_format({'num_format':'$#,##0.00','bottom':True})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+        data_bottom_format = wb.add_format({'num_format':'0%','bottom':True})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+        data_bottom_format = wb.add_format({'num_format':'0.0%','bottom':True})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+        data_bottom_format = wb.add_format({'num_format':'0.00%','bottom':True})
+    elif data_type == None:
+        data_bottom_format = wb.add_format({'bottom':True})
+    else:
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
+
+    # determining how many rows are in the major (leftmost) index by dividing the total row count by index[0] unique values
+    rows_per_major_index = int(len(df)/len(df.index.unique(0)))
+
+    # getting the column count
+
+    # getting the count of regular columns
+    num_cols = len(df.columns)
+    # adding num_cols and number of row indices together for total column count
+    total_cols = num_row_indices + num_cols
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1
+    
+
+    # iterating over data columns excluding row index columns:
+    for col_num in range(num_row_indices, total_cols):
+        # iterating over rows containing data:
+        for row_num, value in enumerate(df.values):
+            # if no data type is assigned:
+            if data_type == None:
+                # for the last row per first index category:
+                if (row_num + 1)%rows_per_major_index==0:
+                    # insert data with a bottom border
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_bottom_format)
+                else:
+                    # insert data with no formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
+            else:
+                # else for the last row per first index category:
+                if (row_num + 1)%rows_per_major_index==0:
+                    # insert the data and apply the specified formatting with bottom border
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_bottom_format)
+                else:
+                    # insert the data and apply specified formatting (no border)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
+
+    
 
 ######################## EDGE BORDER FORMATTING ##################################
 
