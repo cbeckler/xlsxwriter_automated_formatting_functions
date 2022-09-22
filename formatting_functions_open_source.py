@@ -325,7 +325,7 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14):
     sheet.set_column(num_row_indices, df_column_count, col_width, data_format)
 
 
-def insert_data(df, wb, sheet, header_offset=0):
+def insert_data(df, wb, sheet, header_offset=0, data_type=None):
     
     # This function will insert your data in desired cells with a header_offset
     ## Can be used on any dataframe
@@ -339,6 +339,38 @@ def insert_data(df, wb, sheet, header_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### data_type is the type of numeric data:
+    #### this arg should only be used if all your data is the same data type!
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+
+    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+    elif data_type == 'decimal':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+    elif data_type == None:
+        pass
+    else:
+        raise ValueError(f"{data_format} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
     # getting the column count
 
@@ -358,14 +390,18 @@ def insert_data(df, wb, sheet, header_offset=0):
     except:
         num_col_indices = 1
 
-    # iterating over our columns and excluding row indices:
+    # iterating over data columns excluding row index columns:
     for col_num in range(num_row_indices, total_cols):
-        # iterating over all rows containing data:
+        # iterating over rows containing data:
         for row_num, value in enumerate(df.values):
-            # insert the data into the cell
-            ## row_num + num_col_indices + header_offset will give us the row accounting for header rows and offsets
-            ## for value, num_row_indices needs to be subtracted from col_num since we effectively added that to it in our range()
-            sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices])
+            # no data_type is specified:
+            if data_type == None:
+                # insert the data into the cell matching the postion in the datatframe
+                ## value[] has num_row_indices subtracted from it for indexing since that was added to the col_num in range()
+                sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices])
+            else:
+                # insert the data into the cell and apply specified formatting
+                sheet.write(row_num + num_col_indices + header_offset, col_num, value[col_num-num_row_indices], data_format)
 
 
 ###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
