@@ -265,7 +265,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
     # iterating over our numbers of cells to merge per index:
     for col_num, merge_n in enumerate(cat_row_counts):
         # skip if there are no cells to merge
-        if merge_n == 1:
+        if merge_n == 0:
             skip 
         else:
             # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
