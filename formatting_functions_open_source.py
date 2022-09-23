@@ -29,7 +29,7 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     # getting count of number of row indices to set range for index formatting
     
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -98,7 +98,7 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     # getting count of number of row indices to set range for index formatting
     
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -166,7 +166,7 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     # if there is no index set raise error
-    if df.index.names == None:
+    if None in df.index.names:
         raise Exception("No index set for dataframe.")
     else:
         pass
@@ -228,7 +228,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
     #getting count of row_indices
 
     # if there is no index set raise error
-    if df.index.names == None:
+    if None in df.index.names:
         raise Exception("No index set for dataframe.")
     else:
         # else number of row indices is how many row index names there are    
@@ -331,7 +331,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
 
     #getting count of row_indices
     # if there is no index set raise error
-    if df.index.names == None:
+    if None in df.index.names:
         raise Exception("No index set for dataframe.")
     else:
         # else number of row indices is how many row index names there are    
@@ -523,7 +523,7 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     
     # getting row indices count of the data to use to set lower bound for formatting
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -663,7 +663,7 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
 
     # getting row indices count of the data to use to set lower bound for formatting
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -748,7 +748,7 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
 
     # getting the count of row index columns
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -851,7 +851,7 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
     
     # get the count of how many row indices they are so we can skip those columns in the for loop
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -898,7 +898,7 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
 
     #getting count of row_indices
     # if there is no index raise error
-    if df.index.names == None:
+    if None in df.index.names:
         raise Exception("No index set on dataframe.")
     else:
         # else number of row indices is how many row index names there are    
@@ -1018,7 +1018,7 @@ def table_bottom_border(df, wb, sheet, header_offset=0, column_offset=0):
 
     # getting count of number of row indices to set range for index formatting
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
@@ -1059,7 +1059,7 @@ def table_right_border(df, wb, sheet, header_offset=0, column_offset=0):
 
     # getting the count of row index columns
     # if there is no index set to 0 (pandas has a default index with no name)
-    if df.index.names == None:
+    if None in df.index.names:
         num_row_indices = 0
     else:
         # else number of row indices is how many row index names there are    
