@@ -469,7 +469,7 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     elif data_type == 'percent_2':
         data_format = wb.add_format({'num_format':'0.00%'})
     else:
-        raise ValueError(f"{data_format} is not a valid data_format option. Valid options are: {valid_dtypes}")
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
     # getting column count of the data to use to set upper bound for formatting
     df_column_count = len(df.columns)
@@ -528,7 +528,7 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
     elif data_type == None:
         pass
     else:
-        raise ValueError(f"{data_format} is not a valid data_format option. Valid options are: {valid_dtypes}")
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
     # getting the column count
 
@@ -613,14 +613,14 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
         # create an empty list to store the lengths
         value_lengths = []
         # iterating over the values list:
-        for col_num, value in enumerate(values):
+        for row_num, value in enumerate(values):
             # get the length in characters of each value
             length = len(str(value))
             # add it to the value_lengths list
             value_lengths.append(length)
             # if it is the final iteration over the values with the completed value_lengths list for the column:
             ## + 1 since python numbering starts at 0
-            if col_num + 1 == len(values):
+            if row_num + 1 == len(values):
                 # get the max width value
                 ## + 1 for 'wiggle room'
                 max_data_width = max(value_lengths) + 1
