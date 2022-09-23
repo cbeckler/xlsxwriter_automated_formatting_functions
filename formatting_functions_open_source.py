@@ -27,7 +27,13 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     # getting count of number of row indices to set range for index formatting
-    num_row_indices = len(df.index.names)
+    
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # create format templates
     header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
@@ -90,7 +96,14 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     df_column_count = len(df.columns)
 
     # getting count of number of row indices to set range for index formatting
-    num_row_indices = len(df.index.names)
+    
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
+
 
     # create format templates
     header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
@@ -151,7 +164,13 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-        
+
+    # if there is no index set raise error
+    if df.index.name == None:
+        raise Exception("No index set for dataframe.")
+    else:
+        pass
+
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
         num_col_indices = len(df.columns.levshape)
@@ -207,7 +226,13 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
     
 
     #getting count of row_indices
-    num_row_indices = len(df.index.names)
+
+    # if there is no index set raise error
+    if df.index.name == None:
+        raise Exception("No index set for dataframe.")
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # exit function with error if it is not a multiindex
     if num_row_indices == 1:
@@ -305,7 +330,12 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     #getting count of row_indices
-    num_row_indices = len(df.index.names)
+    # if there is no index set raise error
+    if df.index.name == None:
+        raise Exception("No index set for dataframe.")
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # getting rows per category in first index
     rows_per_major_index = int(len(df)/len(df.index.unique(0)))
@@ -492,7 +522,12 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     df_column_count = len(df.columns)
     
     # getting row indices count of the data to use to set lower bound for formatting
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
     sheet.set_column(num_row_indices + column_offset, df_column_count + column_offset, col_width, data_format)
@@ -627,7 +662,12 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
         col_width = col_width_num
 
     # getting row indices count of the data to use to set lower bound for formatting
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
         
     # iterate through columns until we get to the selected column:
     for col_num, df_col_name in enumerate(df.columns):
@@ -707,7 +747,12 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
     # getting the column count
 
     # getting the count of row index columns
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
     # getting the count of regular columns
     num_cols = len(df.columns)
     # adding them together for total column count
@@ -805,7 +850,12 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
     max_all_lengths = np.maximum(col_name_lengths, max_data_lengths)
     
     # get the count of how many row indices they are so we can skip those columns in the for loop
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # choosing list to use based on method:
     if method == 'headers':
@@ -847,7 +897,12 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
 
     #getting count of row_indices
-    num_row_indices = len(df.index.names)
+    # if there is no index raise error
+    if df.index.name == None:
+        raise Exception("No index set on dataframe.")
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # exit function with error if it is not a multiindex
     if num_row_indices == 1:
@@ -962,7 +1017,12 @@ def table_bottom_border(df, wb, sheet, header_offset=0, column_offset=0):
     df_row_count = num_col_indices + data_rows + header_offset
 
     # getting count of number of row indices to set range for index formatting
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
 
     # creating the format for the bottom border (actually top border on the cell below so we don't overwrite data)
     bottom_format = wb.add_format({'top':True})
@@ -998,7 +1058,12 @@ def table_right_border(df, wb, sheet, header_offset=0, column_offset=0):
     # getting the column count
 
     # getting the count of row index columns
-    num_row_indices = len(df.index.names)
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if df.index.name == None:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
     # getting the count of regular columns
     num_cols = len(df.columns)
     # adding them together for total column count
