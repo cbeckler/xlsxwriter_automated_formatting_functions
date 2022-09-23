@@ -630,7 +630,7 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
 
     # create an object holding the length of the name of the column
     ## + 1 for 'wiggle room'
-    col_name_length = len(df[col_name].name)
+    col_name_length = len(df[col_name].name) + 1
 
     # getting length of longest data point
 
@@ -674,6 +674,94 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
         # if the specified column name matches 
         if df_col_name == col_name:
             sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, col_width, data_format)
+        else:
+            pass
+
+
+def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
+
+    # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+
+    # This function will automatically make specified column wide enough for their full column names to appear without being cut off
+    ## Can be used for width based on data or data and header though
+    ## Meant for use on data with only one index of columns, but any number of row indices
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### method is how the width is set:
+    #       'header' sets width based on the length of column names. is default
+    #       'data' sets width based on the length of the longest data point in the column
+    #       'all' sets width based off the column name or longest data point, whichever is larger
+
+    # error if entered col_name not in dataframe
+
+    # create list of all col_names
+    col_name_list = [col_name for col_name in df.columns]
+
+    if col_name not in col_name_list:
+        raise ValueError(f"{col_name} not in dataframe. Columns in data are: {col_name_list}")
+    else:
+        pass
+
+    # list of valid method args
+    valid_methods = ['headers', 'data', 'all']
+
+    # error if valid method arg not used
+    if method not in valid_methods:
+        raise ValueError(f"{method} is not a valid method option. Valid methods are: {valid_methods}")
+    else:
+        pass
+
+    # create an object holding the length of the name of the column
+    ## + 1 for 'wiggle room'
+    col_name_length = len(df[col_name].name) + 1
+
+    # getting length of longest data point
+
+    # list of all column values
+    values = df[col_name].tolist()
+    # create empty list to store the lengths
+    value_lengths = []
+    # iterating over the values list:
+    for row_num, value in enumerate(values):
+            # get the length in characters of each value
+            length = len(str(value))
+            # add it to the value_lengths list
+            value_lengths.append(length)
+            if row_num + 1 == len(values):
+                # get the max width value
+                ## + 1 for 'wiggle room'
+                max_data_width = max(value_lengths) + 1
+
+    # get max of headers and data
+    max_all_lengths = max(col_name_length, max_data_width)
+
+    if method == 'headers':
+        col_width = col_name_length
+    elif method == 'data':
+        col_width = max_data_width
+    elif method == 'all':
+        col_width = max_all_lengths
+
+    # get the count of how many row indices they are so we can skip those columns in the for loop
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if None in df.index.names:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
+
+    for col_num, df_col_name in enumerate(df.columns):
+        # if the specified column name matches 
+        if df_col_name == col_name:    
+            sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, col_width)  
         else:
             pass
 
