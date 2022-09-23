@@ -9,7 +9,7 @@ The developer is creating a package of functions to automate report formatting i
 
 ### Structure
 
-The code base with the functions themselves can be found in [this](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/formatting_functions_open_source.py) Python script, which features commented documentation. An example of how to use the functions to create a report may be found in [this](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/create_example_report.ipynb) Jupyter Notebook, in which the developer created an example report using mocked-up clinical healthcare data. The example report itself can be found [here](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Reports/Example%20Clinical%20Report.xlsx).
+The code base with the functions themselves can be found in [this](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/formatting_functions_open_source.py) Python script, which features commented documentation. An example of how to use the functions to create a report may be found in [this](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/create_example_report.ipynb) Jupyter Notebook, in which the developer created an example report using mocked-up clinical healthcare data. The example report itself can be found [here](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Reports/Example%20Clinical%20Report.xlsx). The mocked up raw data used to create the report can be found [here](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/tree/main/Data).
 
 ## Results
 
@@ -19,10 +19,28 @@ An example of how a report could be formatted with two dimensional data, with a 
 
 ![two dimensional raw data csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/1_2D_before.png)
 
-The `last_col_highlight_header`, `format_index`, `insert_data`, `format_single_numeric_data_type_df`, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` functions were applied to the data after it had been loaded in and had its index set, with a header_offset of 2. The resulting report tab looked like this:
+The `last_col_highlight_header`, `format_index`, `insert_data` with `data_type` argument, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` functions were applied to the data after it had been loaded in and had its index set, with a `header_offset` of 2. The resulting report tab looked like this:
 
 ![two dimensional data report table](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/1_2D_after.png)
 
 ### Three Dimensional Data--Row Multiindex with Columns
 
-to be continued...
+An example of how a report could be formatted with three dimensional data, with a row multiindex and basic columns is in the second tab of the example report. The initial csv data looked like this, with two row index colums:
+
+![three dimensional row index raw data 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_before.png)
+
+The `last_col_highlight_header`, `format_row_multiindex`, `insert_row_multiindex_data` with `data_type` argument, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` werea applied to the data after if had been loaded in and had its index set, with a `header_offset` of 2. The resulting report tab looked like this:
+
+![three dimensional row index report table 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_after.png)
+
+Even more complex row multiindices may be run through these functions. Another set of data with three row index columns was run through the same functions to create another table on the third tab of the example report. The initial csv data looked like this:
+
+![three dimensional row index raw data 2 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_2_before.png)
+
+After the same functions were applied to it with the same arguments as in the previous table, the resulting report looked like this:
+
+![three dimensional row index report table 2 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_2_after.png)
+
+### Three Dimensional Data--Single Row Index with Column Multiindex
+
+To be continued...
