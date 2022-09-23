@@ -699,6 +699,8 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
         data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
     elif data_type == 'text':
         raise Exception('Data types are text by default! Function not needed.')
+    elif data_type == None:
+        pass
     else:
         raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
