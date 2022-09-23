@@ -307,6 +307,9 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
     #getting count of row_indices
     num_row_indices = len(df.index.names)
 
+    # getting rows per category in first index
+    rows_per_major_index = int(len(df)/len(df.index.unique(0)))
+
     # exit function with error if it is not a multiindex
     if num_row_indices == 1:
         raise Exception("Function is not meant for single row index datasets.")
@@ -324,8 +327,25 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
         cat_count = len(df.index.unique(col_num))
         # append them to list
         cat_counts.append(cat_count)
+        
+    # create a empty list to hold the values
+    cat_row_counts = []
 
-    
+    # iterating through the number of row indices we have:
+    for col_num in range(num_row_indices):
+        # get the category count of the index
+        cat_count = len(df.index.unique(col_num))
+        # if it is the major index[0]:
+        if col_num == 0:
+            # rows_per_cat is the rows_per_major_index
+            rows_per_cat = rows_per_major_index
+        else:
+            # else rows_per_cat of last index divided by the category count of current index
+            rows_per_cat = int(cat_row_counts[col_num-1]/cat_counts[col_num])
+        # append rows_per_cat value to list
+        cat_row_counts.append(rows_per_cat)
+
+   
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
         num_col_indices = len(df.columns.levshape)
@@ -339,7 +359,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
     index_bottom_row_format = wb.add_format({'bold':True,'valign':'vcenter','bottom':True})
     last_index_format = wb.add_format({'bold':True,'valign':'vcenter','right':True})
     last_index_bottom_format = wb.add_format({'bold':True,'valign':'vcenter','bottom':True,'right':True})
-
+    
     # iterating over our indices:
     for col_num in range(num_row_indices):
         # if it is the first (major) index:
@@ -348,28 +368,34 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
             for row_num, value in enumerate(df.index.get_level_values(col_num)):
                 # insert index value and apply bottom border index format to all cells
                 sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_bottom_row_format)
-        else:
-            # if it is the last index before the data:
-            if col_num == max(range(num_row_indices)):
-                # iterating over the values in the index:
+        # if it is the last (one row per category) index:
+        elif col_num == max(range(num_row_indices)):
+            # raise an error if there is more than one row per each value
+            if cat_row_counts[col_num] != 1:
+                raise Exception('Your final index has more than one row per each value.')
+            else:
+            # iterating over the values in the index:
                 for row_num, value in enumerate(df.index.get_level_values(col_num)):
-                    # if it is the last row in the index category:
-                    if (row_num + 1)%cat_counts[col_num]==0:
-                        # insert index value and apply right and bottom border index formatting
+                    # if it is the last row before a new major index category:
+                    if (row_num+1)%rows_per_major_index==0:
+                        # apply the last index bottom format
                         sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, last_index_bottom_format)
                     else:
-                        # else insert index value and apply right border index formating
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, last_index_format)
-            else:
-                # for all other indices iterate over index values:
-                for row_num, value in enumerate(df.index.get_level_values(col_num)):
-                    # if it is the last row in the index category:
-                    if (row_num + 1)%cat_counts[col_num]==0:
-                        # insert index value and apply bottom border index formatting
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_bottom_row_format)
-                    else:
-                        # else insert index value and apply no border index formating
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_format)
+                         # apply last index format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, last_index_format) 
+        else:        
+            # for all other indices iterate over index values:
+            for row_num, value in enumerate(df.index.get_level_values(col_num)):
+                # if it is the last row in the index category:
+                ## as determined by if the row number is divisible by the number of categories times the rows per category
+                if (row_num+1)%(cat_counts[col_num]*cat_row_counts[col_num])==0:
+                    # insert index value and apply bottom border index formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_bottom_row_format)
+                else:
+                    # else insert index value and apply no border index formating
+                     sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value, index_format)
+
+
 
     # set index column widths 
 
@@ -390,6 +416,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
     for col_num in range(num_row_indices):
         # set width to matching max index length
         sheet.set_column(col_num + column_offset, col_num + column_offset, max_index_lengths[col_num])
+
     
 
 
