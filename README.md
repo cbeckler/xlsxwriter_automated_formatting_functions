@@ -13,9 +13,19 @@ The code base with the functions themselves can be found in [this](https://githu
 
 ## Results
 
+### One Dimensional Data
+
+An example of how a report could be formatted with one dimensional data, with basic columns and no indices is the first tab of the example report.The initial csv data looked like this:
+
+![one dimensional raw data csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/0_1D_before.png)
+
+The  `format_header`, `insert_data`, `set_col_data_type`, `set_col_width` (for the columns with no set data type), `table_bottom_border`, `table_right_border`, and `insert_title` functions were applied after the data was loaded in and date columns were changed to pandas datetime. The resulting report tab looked like this:
+
+![one dimensional data report table](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/0_1D_after.png)
+
 ### Two Dimensional Data
 
-An example of how a report could be formatted with two dimensional data, with a single row index and basic columns is the first tab of the example report. The initial csv data looked like this:
+An example of how a report could be formatted with two dimensional data, with a single row index and basic columns is the second tab of the example report. The initial csv data looked like this:
 
 ![two dimensional raw data csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/1_2D_before.png)
 
@@ -25,7 +35,7 @@ The `last_col_highlight_header`, `format_index`, `insert_data` with `data_type` 
 
 ### Three Dimensional Data--Row Multiindex with Columns
 
-An example of how a report could be formatted with three dimensional data, with a row multiindex and basic columns is in the second tab of the example report. The initial csv data looked like this, with two row index colums:
+An example of how a report could be formatted with three dimensional data, with a row multiindex and basic columns is in the third tab of the example report. The initial csv data looked like this, with two row index colums:
 
 ![three dimensional row index raw data 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_before.png)
 
@@ -33,7 +43,7 @@ The `last_col_highlight_header`, `format_row_multiindex`, `insert_row_multiindex
 
 ![three dimensional row index report table 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_after.png)
 
-Even more complex row multiindices may be run through these functions. Another set of data with three row index columns was run through the same functions to create another table on the third tab of the example report. The initial csv data looked like this:
+Even more complex row multiindices may be run through these functions. Another set of data with three row index columns was run through the same functions to create another table on the fourth tab of the example report. The initial csv data looked like this:
 
 ![three dimensional row index raw data 2 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_2_before.png)
 
