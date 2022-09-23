@@ -436,27 +436,34 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     ### df is your data from your dataframe
     ### wb is your workbook
     ### sheet is your worksheet
-    ### data_type is the type of numeric data:
+    ### data_type is the type of data:
     #       'numeric' = comma-separated integer (ex 1,200)
-    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
     #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
     #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
     #       'percent' = integer percentage (ex 20%)
     #       'percent_1' = decimal percentage to tenths (ex 20.0%)
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
         
     ## OPTIONAL:
     ### col_width is the width of the data columns. defaults to 14
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
     if data_type == 'numeric':
         data_format = wb.add_format({'num_format':'#,##0'})
-    elif data_type == 'decimal':
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+    elif data_type == 'decimal_2':
         data_format = wb.add_format({'num_format':'#,##0.00'})
     elif data_type == 'dollar':
         data_format = wb.add_format({'num_format':'$#,##0'})
@@ -468,6 +475,16 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
         data_format = wb.add_format({'num_format':'0.0%'})
     elif data_type == 'percent_2':
         data_format = wb.add_format({'num_format':'0.00%'})
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+    elif data_type == 'text':
+        raise Exception('Data types are text by default! Function not needed.')
     else:
         raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
@@ -479,6 +496,146 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
     sheet.set_column(num_row_indices + column_offset, df_column_count + column_offset, col_width, data_format)
+
+
+def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None, col_width_num=14, column_offset=0):
+
+    # This function will apply the specified formatting to the specified column
+    ## Can work on any dataframe
+    ### Note: date formatting will only apply correctly to datetime columns
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+    ### col_name is the name of your column
+    ### data_type is the type of data:
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+    
+
+        
+    ## OPTIONAL:
+    ### col_width_num is the width of the data columns. defaults to 14
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### coL_width_method is how the width is set. defaults to None, which itself defaults to the default col_width_num (14):
+    #       'header' sets width based on the length of column names
+    #       'data' sets width based on the length of the longest data point in the column
+    #       'all' sets width based off the column name or longest data point, whichever is larger
+
+    # list of valid dtype args
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+    elif data_type == 'decimal_2':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+    elif data_type == 'text':
+        raise Exception('Data types are text by default! Function not needed.')
+    else:
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
+
+    # error if entered col_name not in dataframe
+
+    # create list of all col_names
+    col_name_list = [col_name for col_name in df.columns]
+
+    if col_name not in col_name_list:
+        raise ValueError(f"{col_name} not in dataframe. Columns in data are: {col_name_list}")
+    else:
+        pass
+
+    
+    # create list of all valid methods
+    valid_methods = ['headers', 'data', 'all']
+
+    # error if col_width_method not valid
+    if col_width_method == None:
+        pass
+    elif col_width_method not in valid_methods:
+        raise ValueError(f"{col_width_method} is not a valid method option, Valid methods are None or: {valid_methods}")
+    else:
+        pass
+
+    # setting col_width
+
+    # create an object holding the length of the name of the column
+    ## + 1 for 'wiggle room'
+    col_name_length = len(df[col_name].name)
+
+    # getting length of longest data point
+
+    # list of all column values
+    values = df[col_name].tolist()
+    # create empty list to store the lengths
+    value_lengths = []
+    # iterating over the values list:
+    for row_num, value in enumerate(values):
+            # get the length in characters of each value
+            length = len(str(value))
+            # add it to the value_lengths list
+            value_lengths.append(length)
+            if row_num + 1 == len(values):
+                # get the max width value
+                ## + 1 for 'wiggle room'
+                max_data_width = max(value_lengths) + 1
+
+    # get max of headers and data
+    max_all_lengths = max(col_name_length, max_data_width)
+
+    if col_width_method == 'headers':
+        col_width = col_name_length
+    elif col_width_method == 'data':
+        col_width = max_data_width
+    elif col_width_method == 'all':
+        col_width = max_all_lengths
+    else:
+        col_width = col_width_num
+
+    # getting row indices count of the data to use to set lower bound for formatting
+    num_row_indices = len(df.index.names)
+        
+    # iterate through columns until we get to the selected column:
+    for col_num, df_col_name in enumerate(df.columns):
+        # if the specified column name matches 
+        if df_col_name == col_name:
+            sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, col_width, data_format)
+        else:
+            pass
 
 
 def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
@@ -499,21 +656,28 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
     ### data_type is the type of numeric data:
     #### this arg should only be used if all your data is the same data type!
     #       'numeric' = comma-separated integer (ex 1,200)
-    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
     #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
     #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
     #       'percent' = integer percentage (ex 20%)
     #       'percent_1' = decimal percentage to tenths (ex 20.0%)
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
     if data_type == 'numeric':
         data_format = wb.add_format({'num_format':'#,##0'})
-    elif data_type == 'decimal':
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+    elif data_type == 'decimal_2':
         data_format = wb.add_format({'num_format':'#,##0.00'})
     elif data_type == 'dollar':
         data_format = wb.add_format({'num_format':'$#,##0'})
@@ -525,8 +689,16 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
         data_format = wb.add_format({'num_format':'0.0%'})
     elif data_type == 'percent_2':
         data_format = wb.add_format({'num_format':'0.00%'})
-    elif data_type == None:
-        pass
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+    elif data_type == 'text':
+        raise Exception('Data types are text by default! Function not needed.')
     else:
         raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
