@@ -676,6 +676,10 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
         
     ## OPTIONAL:
     ### col_width is the width of the data columns. defaults to 14
+    ### coL_width_method is how the width is set. defaults to None, which itself defaults to the default col_width_num (14):
+    #       'header' sets width based on the length of column names
+    #       'data' sets width based on the length of the longest data point in the column
+    #       'all' sets width based off the column name or longest data point, whichever is larger
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
 
     import numpy as np
@@ -1038,12 +1042,17 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     ### data_type is the type of numeric data:
     #### this arg should only be used if all your data is the same data type!
     #       'numeric' = comma-separated integer (ex 1,200)
-    #       'decimal' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
     #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
     #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
     #       'percent' = integer percentage (ex 20%)
     #       'percent_1' = decimal percentage to tenths (ex 20.0%)
     #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
 
     #getting count of row_indices
     # if there is no index raise error
@@ -1060,14 +1069,17 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
         pass
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal','dollar','dollar_cents','percent','percent_1','percent_2']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
     if data_type == 'numeric':
         data_format = wb.add_format({'num_format':'#,##0'})
         data_bottom_format = wb.add_format({'num_format':'#,##0','bottom':True})
-    elif data_type == 'decimal':
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0.0','bottom':True})
+    elif data_type == 'decimal_2':
         data_format = wb.add_format({'num_format':'#,##0.00'})
         data_bottom_format = wb.add_format({'num_format':'#,##0.00','bottom':True})
     elif data_type == 'dollar':
@@ -1085,6 +1097,21 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     elif data_type == 'percent_2':
         data_format = wb.add_format({'num_format':'0.00%'})
         data_bottom_format = wb.add_format({'num_format':'0.00%','bottom':True})
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd','bottom':True})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy','bottom':True})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','bottom':True})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','bottom':True})
+    elif data_type == 'text':
+        print("Data types are text by default. No error, continuing function.")
+        data_bottom_format = wb.add_format({'bottom':True})
     elif data_type == None:
         data_bottom_format = wb.add_format({'bottom':True})
     else:
