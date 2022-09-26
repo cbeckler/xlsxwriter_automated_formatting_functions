@@ -454,7 +454,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
 
 ###                      ANY SHAPE DATAFRAMES                        ###
 
-def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, column_offset=0):
+def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width_method=None, column_offset=0):
 
     # This function will apply the specified numeric formatting to all data columns
     ## Meant only for dataframes that have the same data type for ALL non-index columns, but can have any number of columns and indices
@@ -483,6 +483,8 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     ## OPTIONAL:
     ### col_width is the width of the data columns. defaults to 14
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+
+    import numpy as np
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
@@ -518,6 +520,60 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
     else:
         raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
 
+
+    # create list of all valid methods
+    valid_methods = ['headers', 'data', 'all']
+
+    # error if col_width_method not valid
+    if col_width_method == None:
+        pass
+    elif col_width_method not in valid_methods:
+        raise ValueError(f"{col_width_method} is not a valid method option, Valid methods are None or: {valid_methods}")
+    else:
+        pass
+
+    # create a list holding the length of the name of each column
+    ## + 1 for 'wiggle room'
+    col_name_lengths = [len(name) + 1 for name in df.columns]
+
+    # create a list holding the max length of the data in each column
+    max_data_lengths = []
+        
+    # iterating over the data columns:    
+    for col in list(df):
+        # store their values in a list
+        values = df[col].tolist()
+        # create an empty list to store the lengths
+        value_lengths = []
+        # iterating over the values list:
+        for row_num, value in enumerate(values):
+            # get the length in characters of each value
+            length = len(str(value))
+            # add it to the value_lengths list
+            value_lengths.append(length)
+            # if it is the final iteration over the values with the completed value_lengths list for the column:
+            ## + 1 since python numbering starts at 0
+            if row_num + 1 == len(values):
+                # get the max width value
+                ## + 1 for 'wiggle room'
+                max_data_width = max(value_lengths) + 1
+                # append it to our data lengths list
+                max_data_lengths.append(max_data_width)
+
+    # create a list for the max of data and column width, whichever is greater
+    max_all_lengths = np.maximum(col_name_lengths, max_data_lengths)
+
+    col_width_num_list = [col_width for col_num in df.columns]
+
+    if col_width_method == 'headers':
+        width_list = col_name_lengths
+    elif col_width_method == 'data':
+        width_list = max_data_width
+    elif col_width_method == 'all':
+        width_list = max_all_lengths
+    else:
+        width_list = col_width_num_list
+
     # getting column count of the data to use to set upper bound for formatting
     df_column_count = len(df.columns)
     
@@ -530,7 +586,8 @@ def format_single_numeric_data_type_df(df, wb, sheet, data_type, col_width=14, c
         num_row_indices = len(df.index.names)
 
     ## sets columns B through the last column present in the dataset with the specified data_format and and sets column widths
-    sheet.set_column(num_row_indices + column_offset, df_column_count + column_offset, col_width, data_format)
+    for col_num, width in enumerate(width_list):    
+        sheet.set_column(col_num + num_row_indices + column_offset, col_num + df_column_count + column_offset, width, data_format)
 
 
 def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None, col_width_num=14, column_offset=0):
