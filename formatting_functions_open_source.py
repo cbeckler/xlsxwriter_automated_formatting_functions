@@ -1024,6 +1024,8 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
         sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, width)  
 
 
+###                 ROW MULTIINDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
+
 def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
 
     # This function will insert your data in desired cells and underline the last row per major index category
@@ -1140,7 +1142,7 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
         # iterating over rows containing data:
         for row_num, value in enumerate(df.values):
             # if no data type is assigned:
-            if data_type == None:
+            if data_type == None or data_type == 'text':
                 # for the last row per first index category:
                 if (row_num + 1)%rows_per_major_index==0:
                     # insert data with a bottom border
