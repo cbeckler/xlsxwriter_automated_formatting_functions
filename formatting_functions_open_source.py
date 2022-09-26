@@ -568,7 +568,7 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
     if col_width_method == 'headers':
         width_list = col_name_lengths
     elif col_width_method == 'data':
-        width_list = max_data_width
+        width_list = max_data_lengths
     elif col_width_method == 'all':
         width_list = max_all_lengths
     else:
