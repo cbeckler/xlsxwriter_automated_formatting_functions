@@ -130,6 +130,8 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
     ####        USE THIS ARG WITH CAUTION! IT WILL CHANGE YOUR COLUMN NAMES PERMANENTLY!
+
+    from utility_functions import clean_header_string
     
     # getting column count of the data to use to set upper bound for formatting
     ## the len function provides the length of objects--in this case, the list of columns
