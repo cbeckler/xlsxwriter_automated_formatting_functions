@@ -4,7 +4,7 @@
 
 ###                 ANY NUMBER ROW INDICES AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
-def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0):
+def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False):
 
     # This function will apply formatting to your header row    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -25,6 +25,10 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     ### index_fontcolor is the font color for your index headers
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
+    ####        USE THIS ARG WITH CAUTION! IT WILL CHANGE YOUR COLUMN NAMES PERMANENTLY!
+    
+    from utility_functions import clean_header_string
 
     # getting count of number of row indices to set range for index formatting
     
@@ -38,6 +42,40 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     # create format templates
     header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
 
+    
+    # optional clean header labels
+
+    # if clean_header option is enabled:
+    if clean_header == True:
+        # create a list of column names
+        col_list = [col_name for col_name in df.columns]
+        # iterate through col_names and apply clean_header_string function
+        fixed_col_names = [clean_header_string(col_name) for col_name in col_list]
+        # assign cleaned names to columns
+        df.columns = fixed_col_names
+        # if there are no row indices:
+        if num_row_indices == 0:
+            # skip this step
+            pass
+        # if there is a single row index:
+        elif num_row_indices == 1:
+            # then set the index name to the cleaned version
+            df.index.name = clean_header_string(df.index.name)
+        # if there is a row multiindex:
+        else:
+            # create a list of cleaned names
+            fixed_index_names =  [clean_header_string(name) for name in df.index.names]
+            # set the row multiindex names to the clean names
+            df.index.names = fixed_index_names
+    # if clean_header is false:
+    elif clean_header == False:
+        # do nothing
+        pass
+    else:
+        # else raise an error message that an incorrect argument has been given
+        raise ValueError(f"{clean_header} is not a valid clean_header option. Valid arguments are True, False.")         
+
+     
     ## the header_format template is applied in the first row for all columns, which also keeps the value from the df header row
     ## the for loop goes over all columns. this prevents the formatting being applied to empty cells
     ### using enumerate and calling values will extract the column value (in this case, column header)
