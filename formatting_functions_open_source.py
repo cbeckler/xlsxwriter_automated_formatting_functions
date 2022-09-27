@@ -26,7 +26,6 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
-    ####        USE THIS ARG WITH CAUTION! IT WILL CHANGE YOUR COLUMN NAMES PERMANENTLY!
     
     from utility_functions import clean_header_string
 
@@ -52,7 +51,7 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
         # iterate through col_names and apply clean_header_string function
         fixed_col_names = [clean_header_string(col_name) for col_name in col_list]
         # assign cleaned names to columns
-        df.columns = fixed_col_names
+        #df.columns = fixed_col_names
         # if there are no row indices:
         if num_row_indices == 0:
             # skip this step
@@ -60,17 +59,23 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
         # if there is a single row index:
         elif num_row_indices == 1:
             # then set the index name to the cleaned version
-            df.index.name = clean_header_string(df.index.name)
+            #df.index.name = clean_header_string(df.index.name)
+            fixed_index_names = [clean_header_string(df.index.name)]
         # if there is a row multiindex:
         else:
             # create a list of cleaned names
             fixed_index_names =  [clean_header_string(name) for name in df.index.names]
             # set the row multiindex names to the clean names
-            df.index.names = fixed_index_names
+            #df.index.names = fixed_index_names
     # if clean_header is false:
     elif clean_header == False:
-        # do nothing
-        pass
+        fixed_col_names = [col_name for col_name in df.columns]
+        if num_row_indices == 0: 
+            pass
+        elif num_row_indices == 1:
+            fixed_index_names = [df.index.name]
+        else:
+            fixed_index_names = [name for name in df.index.names]
     else:
         # else raise an error message that an incorrect argument has been given
         raise ValueError(f"{clean_header} is not a valid clean_header option. Valid arguments are True, False.")         
@@ -82,7 +87,7 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     for col_num, value in enumerate(df.columns.values):
         # normal header formatting is applied to all header columns
         ## col_num + num_row_indices here is so that formatting is applied to the column headers only
-        sheet.write(header_offset, col_num + num_row_indices + column_offset, value, header_format)
+        sheet.write(header_offset, col_num + num_row_indices + column_offset, fixed_col_names[col_num], header_format)
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
     ## also allowing me to add R border to the rightmost index only
@@ -93,14 +98,14 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
     # iterating over the number of row indices present:
     for col_num in range(num_row_indices):
         # we extract the name of the index
-        index_name = df.index.names[col_num]
+        #index_name = df.index.names[col_num]
         # if the index is the last index in the range:
         if col_num == max(range(num_row_indices)):
             # insert the index name and apply the right border index format
-            sheet.write(header_offset, col_num + column_offset, index_name, index_format)
+            sheet.write(header_offset, col_num + column_offset, fixed_index_names[col_num], index_format)
         else:
             # else insert the index name and apply no right border index format
-            sheet.write(header_offset, col_num + column_offset, index_name, index_left_format)
+            sheet.write(header_offset, col_num + column_offset, fixed_index_names[col_num], index_left_format)
 
 
 
