@@ -19,7 +19,7 @@ An example of how a report could be formatted with one dimensional data, with ba
 
 ![one dimensional raw data csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/0_1D_before.png)
 
-The  `format_header`, `insert_data`, `set_col_data_type`, `set_col_width` (for the columns with no set data type), `table_bottom_border`, `table_right_border`, and `insert_title` functions were applied after the data was loaded in and date columns were changed to pandas datetime. The resulting report tab looked like this:
+The  `insert_data`, `set_col_data_type`, `set_col_width` (for the columns with no set data type), `table_bottom_border`, `table_right_border`, `insert_title`, and `format_header` (with `clean_header` option) functions were applied with a `header_offset` of 2 after the data was loaded in and date columns were changed to pandas datetime. The resulting report tab looked like this:
 
 ![one dimensional data report table](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/0_1D_after.png)
 
@@ -39,7 +39,7 @@ An example of how a report could be formatted with three dimensional data, with 
 
 ![three dimensional row index raw data 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_before.png)
 
-The `last_col_highlight_header`, `format_row_multiindex`, `insert_row_multiindex_data` with `data_type` argument, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` werea applied to the data after if had been loaded in and had its index set, with a `header_offset` of 2. The resulting report tab looked like this:
+The `last_col_highlight_header`, `merge_row_index_cells`, `format_row_multiindex`, `insert_row_multiindex_data` with `data_type` argument, `set_column_widths`, `table_bottom_border`, `table_right_border`, and `insert_title` werea applied to the data after if had been loaded in and had its index set, with a `header_offset` of 2. The resulting report tab looked like this:
 
 ![three dimensional row index report table 1 csv](https://github.com/cbeckler/xlsxwriter_automated_formatting_functions/blob/main/Resources/2_3D_row_1_after.png)
 
