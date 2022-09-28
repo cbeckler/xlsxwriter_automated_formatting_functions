@@ -289,6 +289,75 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
     sheet.set_column(column_offset, column_offset, max_index_length)
 
 
+def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor='FFFFFF', hilite_bgcolor='#00A111', hilite_fontcolor='FFFFFF', header_offset=0, column_offset=0):
+
+    # This function will apply formatting to your index to bold it and give a right border and bottom borders
+    ## It will fill one color for all your index row backgrounds and a different color for your last index row value as a highlight
+    ## Meant only for dataframes with single row index and any number of column levels
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### index_bgcolor is the background color of your index rows
+    ### index_fontcolor is the font color of your index rows
+    ### hilite_bgcolor is the background color of your last index row
+    ### hilite_fontcolor is the font color of your last index row
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+
+    
+    # if there is no index set raise error
+    if None in df.index.names:
+        raise Exception("No index set for dataframe.")
+    else:
+        pass
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1   
+    
+    # for summary since only periods are the row and not column index, new period row formats are created
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'right':True, 'bottom':True})
+    last_index_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'right':True, 'bottom':True})
+
+    # getting basic parameters to use in functions
+    ## count of index values
+    index_value_count = df.index.get_level_values(0).nunique()
+
+    # formatting row index (periods)
+
+    # iterating over row index values:
+    for row_num, value in enumerate(df.index.values):
+        # if the remainder of row_num divided by count of index values is 0 (aka it is the last row)
+        ## row_num + 1 here since python starts from 0
+        if (row_num+1)%index_value_count == 0:
+            # apply latest period row format
+            ## row_num + 1 here is *different* from the row_num + 1 above--it's so we don't overwrite our 1 header row
+            ### if we had 2 header rows it would be row_num + 2, etc
+            sheet.write(row_num + num_col_indices + header_offset, column_offset, value, last_index_format)
+        else:
+            # else apply period row format
+            sheet.write(row_num + num_col_indices + header_offset, column_offset, value, index_format)  
+
+    # gets the length of all the values in the index
+    index_values = [len(value) for row_num, value in enumerate(df.index.values)]
+
+    # gets the max of the index values or the name of the index, whichever is greater
+    ## + 1 for 'wiggle room'
+    max_index_length = max(max(index_values), len(df.index.name)) + 1
+
+    # set index column width
+    sheet.set_column(column_offset, column_offset, max_index_length)  
+
+
 ###                ROW MULTIINDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
 def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
