@@ -2026,6 +2026,141 @@ def set_multindex_column_widths(df, wb, sheet, column_offset=0, method='headers'
         sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, width)
 
 
+def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
+
+    # This function will insert your data in desired cells and apply a right border to the last column of each first level category
+    ## Can be used on any dataframe
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### data_type is the type of numeric data:
+    #### this arg should only be used if all your data is the same data type!
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        raise Exception('Data does not have a columns multiindex')
+
+    # error if there are not 2 column header rows
+    if num_col_indices == 2:
+        pass 
+    else:
+        raise Exception(f"Function is only meant for datasets with two header rows. The number of header rows your data has is {num_col_indices}.")
+
+    #getting count of row_indices
+    # if there is no index set to 0
+    if None in df.index.names:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
+
+    
+    # list of valid dtype args
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+        data_right_format = wb.add_format({'num_format':'#,##0','right':True})
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+        data_right_format = wb.add_format({'num_format':'#,##0.0','right':True})
+    elif data_type == 'decimal_2':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+        data_right_format = wb.add_format({'num_format':'#,##0.00','right':True})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+        data_right_format = wb.add_format({'num_format':'$#,##0','right':True})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+        data_right_format = wb.add_format({'num_format':'$#,##0.00','right':True})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+        data_right_format = wb.add_format({'num_format':'0%','right':True})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+        data_right_format = wb.add_format({'num_format':'0.0%','right':True})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+        data_right_format = wb.add_format({'num_format':'0.00%','right':True})
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd','right':True})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+        data_right_format = wb.add_format({'num_format':'m/d/yyyy','right':True})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','right':True})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+        data_right_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','right':True})
+    elif data_type == 'text':
+        print("Data types are text by default. No error, continuing function.")
+        data_right_format = wb.add_format({'right':True})
+    elif data_type == None:
+        data_right_format = wb.add_format({'right':True})
+    else:
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
+
+    ## number of header row 2 values which are what we need to loop over
+    header2_n = df.columns.levshape[1]
+
+    # getting the column count
+
+    # getting the count of regular columns
+    num_cols = len(df.columns)
+    # adding num_cols and number of row indices together for total column count
+    total_cols = num_row_indices + num_cols
+        
+
+    # iterating over data columns excluding row index columns:
+    for col_num in range(num_row_indices, total_cols):
+        # iterating over rows containing data:
+        for row_num, value in enumerate(df.values):
+            # if no data type is assigned:
+            if data_type == None or data_type == 'text':
+                # for the last row per first index category:
+                if (col_num)%header2_n==0:
+                    # insert data with a bottom border
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_right_format)
+                else:
+                    # insert data with no formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
+            else:
+                # else for the last row per first index category:
+                if (col_num)%header2_n==0:
+                    # insert the data and apply the specified formatting with bottom border
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_right_format)
+                else:
+                    # insert the data and apply specified formatting (no border)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
+                    
+
 ######################## EDGE BORDER FORMATTING ##################################
 
 ###                      ANY SHAPE DATAFRAMES                        ###
