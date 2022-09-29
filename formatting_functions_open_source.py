@@ -239,7 +239,7 @@ def format_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002387', header
 header2_bgcolor =  '#137A78' , header2_fontcolor = '#FFFFFF', index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', \
 index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
 
-     # This function will apply formatting to your header row    
+     # This function will apply formatting to your header rows    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
     ### Meant only for dataframes with any number of row indices and two header rows (2 level column multiindex) 
 
@@ -252,10 +252,13 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
     
     ## OPTIONAL:
     ## all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
-    ### header_bgcolor is the background color for your column headers
-    ### header_fontcolor is the font color for your column headers
-    ### index_bgcolor is the background color for your index header
-    ### index_fontcolor is the font color for your index headers
+    ### header1_bgcolor is the background color for your column headers for your first row
+    ### header1_fontcolor is the font color for your column headers for your first row
+    ### header2_bgcolor is the background color for your column headers for your second row
+    ### header2_fontcolor is the font color for your column headers for your second row    
+    ### index1_bgcolor is the background color for your index headers for your first row
+    ### index2_bgcolor is the background color for your index headers for your second row
+    ### index2_fontcolor is the font color for your index headers for your second row
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
@@ -422,7 +425,7 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
     
     # formatting second header row
     ## interating through the columns:
-    for col_num, value in enumerate(month_df.columns.values):
+    for col_num, value in enumerate(df.columns.values):
         # if the remainder of the col_num divided by the count of how many values there are = 0:
         ## the last column per header1 category will always have a remainder 0
         if (col_num + 1)%header2_n == 0:
@@ -450,6 +453,237 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
             sheet.write(header_offset, col_num + column_offset, "", index1_format)
             ## header_offset + 1 to not overwrite index1
             sheet.write(header_offset + 1, col_num + column_offset, fixed_index_names[col_num], index2_format)
+
+
+def last_col_highlight_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002387', header1_fontcolor = '#FFFFFF', \
+header1_bghilite = '#00A111', header1_fonthilite = '#FFFFFF', \
+header2_bgcolor = '#137A78', header2_fontcolor = '#FFFFFF', index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', \
+index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
+
+     # This function will apply formatting to your header rows and highlight the last cell of your first header row  
+    ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
+    ### Meant only for dataframes with any number of row indices and two header rows (2 level column multiindex) 
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+    
+    ## OPTIONAL:
+    ## all color args can be added with keywords (ie, 'red') but hex codes (ex '#FF0000') are better for customization
+    ### header1_bgcolor is the background color for your column headers for your first row
+    ### header1_fontcolor is the font color for your column headers for your first row
+    ### header1_bghilite is the background color for your last column header for your first row
+    ### header1_fonthilite is the font color for your column last header for your first row
+    ### header2_bgcolor is the background color for your column headers for your second row
+    ### header2_fontcolor is the font color for your column headers for your second row    
+    ### index1_bgcolor is the background color for your index headers for your first row
+    ### index2_bgcolor is the background color for your index headers for your second row
+    ### index2_fontcolor is the font color for your index headers for your second row
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
+    ### merge_cells will merge the cells of the first header row
+    ####    this MUST be used if you are not using to_excel to import data!
+    ### text_wrap will wrap the column header labels for the second header row
+    
+    from utility_functions import clean_header_string, return_divisible_ints
+
+    # raise an error if the header_offset input is not valid
+    if isinstance(header_offset, int) == False:
+        raise TypeError(f"{header_offset} is not a valid argument for header_offset. header_offset must be an integer.")
+    else:
+        pass
+
+    # raise an error if the column_offset input is not valid
+    if isinstance(column_offset, int) == False:
+        raise TypeError(f"{column_offset} is not a valid argument for column_offset. column_offset must be an integer.")
+    else:
+        pass
+
+    # raise an error if the merge_cells input is not valid
+    if merge_cells == True:
+        pass
+    elif merge_cells == False:
+        pass
+    else:
+        raise ValueError(f"{merge_cells} is not a valid merge_cells option. Valid arguments are True, False.")
+
+    # raise an error if the text_wrap input is not valid    
+    if text_wrap == True:
+        pass
+    elif text_wrap == False:
+        pass
+    else:
+        raise ValueError(f"{text_wrap} is not a valid text_wrap option. Valid arguments are True, False.")
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1  
+
+    # error if there are not 2 column header rows
+    if num_col_indices == 2:
+        pass 
+    else:
+        raise Exception(f"Function is only meant for datasets with two header rows. The number of header rows your data has is {num_col_indices}.")
+
+    # getting count of number of row indices to set range for index formatting
+    
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if None in df.index.names:
+        num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
+
+    # create format templates
+    ## the 'last' format templates apply a right border to the last column of the second header row before the columns start repeating again
+    ## and to the last index column before the data columns start
+
+    header1_format = wb.add_format({'bold':True,'bg_color':header1_bgcolor,'font_color':header1_fontcolor,'align':'center','right':True})
+    header1_last_format = wb.add_format({'bold':True,'bg_color':header1_bghilite,'font_color':header1_fonthilite,'align':'center','right':True})
+    
+    if text_wrap == True:
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'text_wrap':True,'valign':'vcenter'})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True, 'text_wrap':True,'valign':'vcenter'})
+    else: 
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True})
+  
+    index1_format = wb.add_format({'bg_color':index1_bgcolor})
+    index1_last_format = wb.add_format({'bg_color':index1_bgcolor,'right':True})
+    
+    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,'valign':'vcenter'})
+    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,'bottom':True,'valign':'vcenter'})
+
+    # optional clean header labels
+    
+    # if clean_header option is enabled:
+    if clean_header == True:
+        # create a list of column names
+        col_list1 = [col_name for col_name in df.columns.get_level_values(0).unique()]
+        col_list2 = [col_name for col_name in df.columns.get_level_values(1)]
+        # iterate through col_names and apply clean_header_string function
+        fixed_col_names1 = [clean_header_string(col_name) for col_name in col_list1]
+        fixed_col_names2 = [clean_header_string(col_name) for col_name in col_list2]
+        # if there are no row indices:
+        if num_row_indices == 0:
+            # skip this step
+            pass
+        # if there is a single row index:
+        elif num_row_indices == 1:
+            # then set the index name to the cleaned version
+            fixed_index_names = [clean_header_string(df.index.name)]
+        # if there is a row multiindex:
+        else:
+            # create a list of cleaned names
+            fixed_index_names =  [clean_header_string(name) for name in df.index.names]
+    # if clean_header is false:
+    elif clean_header == False:
+        # have a list of the regular col names
+        fixed_col_names1 = [col_name for col_name in df.columns.get_level_values(0)]
+        fixed_col_names2 = [col_name for col_name in df.columns.get_level_values(1)]
+        # if there are no row indices:
+        if num_row_indices == 0: 
+            # skip this step
+            pass
+        # if there is a single row index
+        elif num_row_indices == 1:
+            # list the name of it
+            fixed_index_names = [df.index.name]
+        else:
+            # list the name of all row indices
+            fixed_index_names = [name for name in df.index.names]
+    else:
+        # else raise an error message that an incorrect argument has been given
+        raise ValueError(f"{clean_header} is not a valid clean_header option. Valid arguments are True, False.")         
+
+    # get values to use in formatting
+
+    ## number of header row 1 values
+    header1_n = df.columns.levshape[0]
+    ## number of header row 2 values
+    header2_n = df.columns.levshape[1]
+    ## total number of data columns
+    total_columns = header1_n * header2_n
+    ## number of cells that need to be merged for header one if merge_cells = True
+    cells_to_merge = header2_n - 1 
+    ## get the number of the column that is the first column of the last level
+    ### we will need this to reference the latest time period
+    first_last_level = total_columns - (header2_n - 1)
+     
+    # merge cells for first row of headers
+    if merge_cells == True:    
+        # get the columns each cell needs to start the merge on by getting divisible numbers between 0 and the number of columns
+        ## divided by the number of header row 2 values
+        merge_cols = return_divisible_ints(0, total_columns, header2_n)
+        # drop the last (and extra) value
+        merge_cols.pop()
+
+        # iterating through our list of merge col numbers:
+        for col_num in merge_cols:
+            # merge the starting column to start column + cells to merge cells together on the first header row
+            sheet.merge_range(header_offset, col_num + num_row_indices + column_offset, header_offset, \
+                col_num + num_row_indices + column_offset + cells_to_merge,'-')
+    elif header_offset != 0:
+        # raise an error if the header_offset option is enabled but cells are not being merged
+        raise Exception(f"Cells will needs to be merged if header_offset does not equal 0. Current header_offset = {header_offset}. Data cannot be imported with to_excel.")
+    elif num_row_indices != 0:
+        # else if there is a row index hide the extra row that will contain its label (when importing with to_excel())
+        sheet.set_row(2,options={'hidden':True})
+        print('Third row of Excel hidden to hide extra row index label when importing with to_excel.\
+            If data has not been imported with to_excel, rerun code with merge_cells=True in this function.')
+    else:
+        # else do nothing
+        pass
+    
+    # formatting first header row
+
+    # iterating though the columns
+    for col_num, value in enumerate(df.columns.values):
+        if col_num + 1 == first_last_level:
+            sheet.write(header_offset, col_num + num_row_indices + column_offset, fixed_col_names1[col_num], header1_last_format)
+        else:
+            # insert col name and apply header1 format
+            sheet.write(header_offset, col_num + num_row_indices + column_offset, fixed_col_names1[col_num], header1_format)
+
+    
+    # formatting second header row
+    ## interating through the columns:
+    for col_num, value in enumerate(df.columns.values):
+        # if the remainder of the col_num divided by the count of how many values there are = 0:
+        ## the last column per header1 category will always have a remainder 0
+        if (col_num + 1)%header2_n == 0:
+            # apply header2_last_format and insert col name value
+            ## header_offset + 1 to not overwrite header1
+            sheet.write(header_offset + 1, col_num + num_row_indices + column_offset, fixed_col_names2[col_num], header2_last_format)
+        else:
+            # else apply regular header2_format
+            ## header_offset + 1 to not overwrite header1
+            sheet.write(header_offset + 1, col_num + num_row_indices + column_offset, fixed_col_names2[col_num], header2_format)
+
+    # index formatting
+
+    # iterating over the number of row indices present:
+    for col_num in range(num_row_indices):
+        # if the index is the last index in the range:
+        if col_num == max(range(num_row_indices)):
+            # insert the index name and apply the right border index format
+            ## fixed_index_names[col_num] will retrieve the correct name based on its position in the list
+            sheet.write(header_offset, col_num + column_offset, "", index1_last_format)
+            ## header_offset + 1 to not overwrite index1
+            sheet.write(header_offset + 1, col_num + column_offset, fixed_index_names[col_num], index2_last_format)
+        else:
+            # else insert the index name and apply no right border index format
+            sheet.write(header_offset, col_num + column_offset, "", index1_format)
+            ## header_offset + 1 to not overwrite index1
+            sheet.write(header_offset + 1, col_num + column_offset, fixed_index_names[col_num], index2_format)
+
 
 
 ######################## INDEX FORMATTING ##################################
