@@ -4,7 +4,8 @@
 
 ###                 ANY NUMBER ROW INDICES AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
-def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False):
+def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', \
+index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False):
 
     # This function will apply formatting to your header row    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -39,7 +40,8 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
         num_row_indices = len(df.index.names)
 
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
+    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+        'bottom':True})
 
     # optional clean header labels
     
@@ -92,9 +94,11 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
     ## also allowing me to add R border to the rightmost index only
-    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,\
+        'right':True}) 
     # the index headers to the left lack the right border
-    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
+    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+        'bottom':True})
 
     # iterating over the number of row indices present:
     for col_num in range(num_row_indices):
@@ -111,7 +115,9 @@ def format_header(df, wb, sheet,  header_bgcolor =  '#002387', header_fontcolor 
 
 
 
-def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False):
+def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF',\
+    hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', \
+    header_offset=0, column_offset=0, clean_header=False):
 
     # This function will apply formatting to your headers that will automatically apply a different color to your last column to highlight it
     ## This is especially useful for time series: highlighting most recent year etc
@@ -193,8 +199,10 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
 
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center','bottom':True})
-    last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center','bottom':True})
+    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+        'bottom':True})
+    last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center',\
+        'bottom':True})
 
     ## the header_format template is applied in the first row for all columns, which also keeps the value from the df header row
     ## for the last column, the color of the header row will be different, applying last_col_format
@@ -215,9 +223,11 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
     ## also allowing me to add R border to the rightmost index only
-    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,'right':True}) 
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+        'bottom':True,'right':True}) 
     # the index headers to the left lack the right border
-    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True})
+    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+        'bottom':True})
 
     # iterating over the number of row indices present:
     for col_num in range(num_row_indices):
@@ -232,12 +242,11 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
             # else insert the index name and apply no right border index format
             sheet.write(header_offset, col_num + column_offset, fixed_index_names[col_num], index_left_format)
 
-
 ###                 ANY NUMBER ROW INDICES AND TWO LEVEL COLUMN MULITINDEX DATAFRAMES                 ###
 
 def format_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002387', header1_fontcolor = '#FFFFFF', \
-header2_bgcolor =  '#137A78' , header2_fontcolor = '#FFFFFF', index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', \
-index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
+    header2_bgcolor = '#137A78', header2_fontcolor = '#FFFFFF', index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', \
+    index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
 
      # This function will apply formatting to your header rows    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -307,7 +316,8 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
     if num_col_indices == 2:
         pass 
     else:
-        raise Exception(f"Function is only meant for datasets with two header rows. The number of header rows your data has is {num_col_indices}.")
+        raise Exception(f"Function is only meant for datasets with two header rows. \
+            The number of header rows your data has is {num_col_indices}.")
 
     # getting count of number of row indices to set range for index formatting
     
@@ -322,20 +332,27 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
     ## the 'last' format templates apply a right border to the last column of the second header row before the columns start repeating again
     ## and to the last index column before the data columns start
 
-    header1_format = wb.add_format({'bold':True,'bg_color':header1_bgcolor,'font_color':header1_fontcolor,'align':'center','right':True})
+    header1_format = wb.add_format({'bold':True,'bg_color':header1_bgcolor,'font_color':header1_fontcolor,'align':'center',\
+        'right':True})
     
     if text_wrap == True:
-        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'text_wrap':True,'valign':'vcenter'})
-        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True, 'text_wrap':True,'valign':'vcenter'})
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'text_wrap':True,'valign':'vcenter'})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'right':True, 'text_wrap':True,'valign':'vcenter'})
     else: 
-        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True})
-        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True})
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'right':True})
   
     index1_format = wb.add_format({'bg_color':index1_bgcolor})
     index1_last_format = wb.add_format({'bg_color':index1_bgcolor,'right':True})
     
-    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,'valign':'vcenter'})
-    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,'bottom':True,'valign':'vcenter'})
+    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+        'valign':'vcenter'})
+    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+        'bottom':True,'valign':'vcenter'})
 
     # optional clean header labels
     
@@ -456,9 +473,9 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
 
 
 def last_col_highlight_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002387', header1_fontcolor = '#FFFFFF', \
-header1_bghilite = '#00A111', header1_fonthilite = '#FFFFFF', \
-header2_bgcolor = '#137A78', header2_fontcolor = '#FFFFFF', index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', \
-index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
+    header1_bghilite = '#00A111', header1_fonthilite = '#FFFFFF', header2_bgcolor = '#137A78', header2_fontcolor = '#FFFFFF',\
+    index1_bgcolor =  '#002387', index2_bgcolor = '#137A78', index2_fontcolor = '#FFFFFF', \
+    header_offset=0, column_offset=0, clean_header=False, merge_cells=False, text_wrap=False):
 
      # This function will apply formatting to your header rows and highlight the last cell of your first header row  
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -530,7 +547,8 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
     if num_col_indices == 2:
         pass 
     else:
-        raise Exception(f"Function is only meant for datasets with two header rows. The number of header rows your data has is {num_col_indices}.")
+        raise Exception(f"Function is only meant for datasets with two header rows. \
+            The number of header rows your data has is {num_col_indices}.")
 
     # getting count of number of row indices to set range for index formatting
     
@@ -542,24 +560,33 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
         num_row_indices = len(df.index.names)
 
     # create format templates
-    ## the 'last' format templates apply a right border to the last column of the second header row before the columns start repeating again
+    ## the 'last' format templates apply a right border to the last column of the second header row before the columns 
+    ## start repeating again
     ## and to the last index column before the data columns start
 
-    header1_format = wb.add_format({'bold':True,'bg_color':header1_bgcolor,'font_color':header1_fontcolor,'align':'center','right':True})
-    header1_last_format = wb.add_format({'bold':True,'bg_color':header1_bghilite,'font_color':header1_fonthilite,'align':'center','right':True})
+    header1_format = wb.add_format({'bold':True,'bg_color':header1_bgcolor,'font_color':header1_fontcolor,'align':'center',\
+        'right':True})
+    header1_last_format = wb.add_format({'bold':True,'bg_color':header1_bghilite,'font_color':header1_fonthilite,'align':'center',\
+        'right':True})
     
     if text_wrap == True:
-        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'text_wrap':True,'valign':'vcenter'})
-        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True, 'text_wrap':True,'valign':'vcenter'})
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'text_wrap':True,'valign':'vcenter'})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'right':True, 'text_wrap':True,'valign':'vcenter'})
     else: 
-        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True})
-        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center', 'bottom':True, 'right':True})
+        header2_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True})
+        header2_last_format = wb.add_format({'bold':True,'bg_color':header2_bgcolor,'font_color':header2_fontcolor,'align':'center',\
+            'bottom':True, 'right':True})
   
     index1_format = wb.add_format({'bg_color':index1_bgcolor})
     index1_last_format = wb.add_format({'bg_color':index1_bgcolor,'right':True})
     
-    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,'valign':'vcenter'})
-    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,'bottom':True,'valign':'vcenter'})
+    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+        'valign':'vcenter'})
+    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+        'bottom':True,'valign':'vcenter'})
 
     # optional clean header labels
     
@@ -632,7 +659,8 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
                 col_num + num_row_indices + column_offset + cells_to_merge,'-')
     elif header_offset != 0:
         # raise an error if the header_offset option is enabled but cells are not being merged
-        raise Exception(f"Cells will needs to be merged if header_offset does not equal 0. Current header_offset = {header_offset}. Data cannot be imported with to_excel.")
+        raise Exception(f"Cells will needs to be merged if header_offset does not equal 0. \
+            Current header_offset = {header_offset}. Data cannot be imported with to_excel.")
     elif num_row_indices != 0:
         # else if there is a row index hide the extra row that will contain its label (when importing with to_excel())
         sheet.set_row(2,options={'hidden':True})
@@ -685,13 +713,12 @@ index2_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fal
             sheet.write(header_offset + 1, col_num + column_offset, fixed_index_names[col_num], index2_format)
 
 
-
 ######################## INDEX FORMATTING ##################################
 
 
 ###                 SINGLE ROW INDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet, header_offset=0, column_offset=0):
+def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with single row index and any number of column levels
@@ -706,6 +733,8 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### set_width automatically sets your index width when True. defaults to True
+
 
     # if there is no index set raise error
     if None in df.index.names:
@@ -731,18 +760,23 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0):
         # the column is hard-coded to 0 (column A) as this is the only column we want this applied to
         sheet.write(row_num + num_col_indices + header_offset, column_offset, value, index_format)
 
-    # gets the length of all the values in the index
-    index_values = [len(value) for row_num, value in enumerate(df.index.values)]
+    
+    if set_width == True:
+        # gets the length of all the values in the index
+        index_values = [len(value) for row_num, value in enumerate(df.index.values)]
 
-    # gets the max of the index values or the name of the index, whichever is greater
-    ## + 1 for 'wiggle room'
-    max_index_length = max(max(index_values), len(df.index.name)) + 1
+        # gets the max of the index values or the name of the index, whichever is greater
+        ## + 1 for 'wiggle room'
+        max_index_length = max(max(index_values), len(df.index.name)) + 1
 
-    # set index column width
-    sheet.set_column(column_offset, column_offset, max_index_length)
+        # set index column width
+        sheet.set_column(column_offset, column_offset, max_index_length)
+    else:
+        pass
 
 
-def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor='FFFFFF', hilite_bgcolor='#00A111', hilite_fontcolor='FFFFFF', header_offset=0, column_offset=0):
+def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor='FFFFFF', \
+    hilite_bgcolor='#00A111', hilite_fontcolor='FFFFFF', header_offset=0, column_offset=0, set_width=True):
 
     # This function will apply formatting to your index to bold it and give a right border and bottom borders
     ## It will fill one color for all your index row backgrounds and a different color for your last index row value as a highlight
@@ -762,6 +796,7 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
     ### hilite_fontcolor is the font color of your last index row
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### set_width automatically sets your index width when True. defaults to True
 
     
     # if there is no index set raise error
@@ -778,8 +813,10 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
         num_col_indices = 1   
     
     # for summary since only periods are the row and not column index, new period row formats are created
-    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'right':True, 'bottom':True})
-    last_index_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'right':True, 'bottom':True})
+    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'right':True,\
+        'bottom':True})
+    last_index_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'right':True,\
+        'bottom':True})
 
     # getting basic parameters to use in functions
     ## count of index values
@@ -800,16 +837,19 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
             # else apply period row format
             sheet.write(row_num + num_col_indices + header_offset, column_offset, value, index_format)  
 
-    # gets the length of all the values in the index
-    index_values = [len(value) for row_num, value in enumerate(df.index.values)]
+    if set_width == True:
+        # gets the length of all the values in the index
+        index_values = [len(value) for row_num, value in enumerate(df.index.values)]
 
-    # gets the max of the index values or the name of the index, whichever is greater
-    ## + 1 for 'wiggle room'
-    max_index_length = max(max(index_values), len(df.index.name)) + 1
+        # gets the max of the index values or the name of the index, whichever is greater
+        ## + 1 for 'wiggle room'
+        max_index_length = max(max(index_values), len(df.index.name)) + 1
 
-    # set index column width
-    sheet.set_column(column_offset, column_offset, max_index_length)  
-
+        # set index column width
+        sheet.set_column(column_offset, column_offset, max_index_length) 
+    else:
+        pass
+    
 
 ###                ROW MULTIINDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
@@ -903,7 +943,8 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
         if merge_n == 0 or merge_n == 1:
             skip 
         else:
-            # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, divided by merge_n
+            # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, 
+            # divided by merge_n
             divisible_rows = [i for i in return_divisible_ints(0, data_rows, merge_n)]
             # will return 1 too many values--drop the last one
             divisible_rows.pop()
@@ -921,7 +962,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
                           'Forgot to Import Data!')
 
 
-def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
+def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_width=True):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with row mulitiindex and and number of columns levels
@@ -939,6 +980,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### set_width automatically sets your index width when True. defaults to True
 
     #getting count of row_indices
     # if there is no index set raise error
@@ -1039,24 +1081,26 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
 
 
     # set index column widths 
+    if set_width == True:
+        # create empty list to hold max_index_lengths
+        max_index_lengths = []
 
-    # create empty list to hold max_index_lengths
-    max_index_lengths = []
+        # iterating over row indices:
+        for col_num in range(num_row_indices):
+            # store the length of all index values in a list
+            index_values = [len(value) for i, value in enumerate(df.index.get_level_values(col_num))]
+            # get the max width of the longest value or title, whichever is longer
+            ## + 1 for 'wiggle room'
+            max_index_length = max(max(index_values), len(df.index.names[col_num])) + 1
+            # add that to the max_index_lengths list
+            max_index_lengths.append(max_index_length)
 
-    # iterating over row indices:
-    for col_num in range(num_row_indices):
-        # store the length of all index values in a list
-        index_values = [len(value) for i, value in enumerate(df.index.get_level_values(col_num))]
-        # get the max width of the longest value or title, whichever is longer
-        ## + 1 for 'wiggle room'
-        max_index_length = max(max(index_values), len(df.index.names[col_num])) + 1
-        # add that to the max_index_lengths list
-        max_index_lengths.append(max_index_length)
-
-    # iterating over row indices again:
-    for col_num in range(num_row_indices):
-        # set width to matching max index length
-        sheet.set_column(col_num + column_offset, col_num + column_offset, max_index_lengths[col_num])
+        # iterating over row indices again:
+        for col_num in range(num_row_indices):
+            # set width to matching max index length
+            sheet.set_column(col_num + column_offset, col_num + column_offset, max_index_lengths[col_num])
+    else: 
+        pass
 
     
 
@@ -1068,7 +1112,8 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0):
 
 def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
 
-    # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+    # adapted from a solution from dfresh22 found at 
+    # https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make specified column wide enough for their full column names to appear without being cut off
     ## Can be used for width based on data or data and header though
@@ -1185,7 +1230,8 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
     #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -1254,7 +1300,8 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
                 sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
             else:
                 # insert the data into the cell and apply specified formatting
-                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
+                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                    data_format)
 
 
 ###                 SINGLE ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
@@ -1296,7 +1343,8 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
     import numpy as np
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -1437,7 +1485,8 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
     #       'all' sets width based off the column name or longest data point, whichever is larger
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -1539,7 +1588,8 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
     for col_num, df_col_name in enumerate(df.columns):
         # if the specified column name matches 
         if df_col_name == col_name:
-            sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, col_width, data_format)
+            sheet.set_column(col_num + num_row_indices + column_offset, col_num + num_row_indices + column_offset, col_width,\
+                data_format)
         else:
             pass
 
@@ -1551,7 +1601,8 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
     import numpy as np
 
-    # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+    # adapted from a solution from dfresh22 found at 
+    # https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
     ## Can be used for width based on data or data and header though
@@ -1682,7 +1733,8 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
         pass
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -1757,7 +1809,8 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
                 # for the last row per first index category:
                 if (row_num + 1)%rows_per_major_index==0:
                     # insert data with a bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_bottom_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_bottom_format)
                 else:
                     # insert data with no formatting
                     sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
@@ -1765,16 +1818,18 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
                 # else for the last row per first index category:
                 if (row_num + 1)%rows_per_major_index==0:
                     # insert the data and apply the specified formatting with bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_bottom_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_bottom_format)
                 else:
                     # insert the data and apply specified formatting (no border)
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_format)
 
 
 def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0):
 
     # This function will apply the specified formatting to the specified column
-    ## Can work on dataframes with a row multindexindex and any number of column header levels
+    ## Can work on dataframes with a row multiindex and any number of column header levels
     ### Note: date formatting will only apply correctly to datetime columns
 
     # ARGUMENTS
@@ -1818,7 +1873,8 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
 
 
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -1893,18 +1949,22 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
                     # for the last row per first index category:
                     if (row_num + 1)%rows_per_major_index==0:
                         # insert data with a bottom border
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, value[col_num], data_bottom_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num], data_bottom_format)
                     else:
                         # insert data with no formatting
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, value[col_num])
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num])
                 else:
                     # else for the last row per first index category:
                     if (row_num + 1)%rows_per_major_index==0:
                         # insert the data and apply the specified formatting with bottom border
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, value[col_num], data_bottom_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num], data_bottom_format)
                     else:
                         # insert the data and apply specified formatting (no border)
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, value[col_num], data_format)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num], data_format)
         else:
             pass   
 
@@ -1912,11 +1972,12 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
 ###                 ANY NUMBER ROW INDICES AND TWO LEVEL COLUMN MULITINDEX DATAFRAMES                 ###
 
 
-def set_multindex_column_widths(df, wb, sheet, column_offset=0, method='headers', text_wrap=False, wrap_rows=2):
+def set_multiindex_column_widths(df, wb, sheet, column_offset=0, method='headers', text_wrap=False, wrap_rows=2):
 
     import numpy as np
     from math import ceil
-    # adapted from a solution from dfresh22 found at https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
+    # adapted from a solution from dfresh22 found at 
+    # https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
 
     # This function will automatically make all columns wide enough for their full column names to appear without being cut off
     ## Can be used for width based on data or data and header though
@@ -2067,7 +2128,8 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     if num_col_indices == 2:
         pass 
     else:
-        raise Exception(f"Function is only meant for datasets with two header rows. The number of header rows your data has is {num_col_indices}.")
+        raise Exception(f"Function is only meant for datasets with two header rows. \
+            The number of header rows your data has is {num_col_indices}.")
 
     #getting count of row_indices
     # if there is no index set to 0
@@ -2079,7 +2141,8 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
 
     
     # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date','date_alt','datetime','datetime_alt']
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']
 
     # this if statement sets the formatting based off the data_type argument
     ## it will raise an error to tell the user if they have entered an invalid data_type argument
@@ -2147,7 +2210,8 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
                 # for the last row per first index category:
                 if (col_num)%header2_n==0:
                     # insert data with a bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_right_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_right_format)
                 else:
                     # insert data with no formatting
                     sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
@@ -2155,10 +2219,12 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
                 # else for the last row per first index category:
                 if (col_num)%header2_n==0:
                     # insert the data and apply the specified formatting with bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_right_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_right_format)
                 else:
                     # insert the data and apply specified formatting (no border)
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices], data_format)
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_format)
                     
 
 ######################## EDGE BORDER FORMATTING ##################################
@@ -2378,3 +2444,531 @@ def create_skip_rows(df, header_offset=0, rows_between=2):
 
     # funtion returns the number of rows in the dataframe + number of header rows + header_offset + rows _between for num rows to skip
     return len(df) + num_col_indices + header_offset + rows_between
+
+
+def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',text_wrap=False,wrap_rows=2,\
+    df1_col_multiindex=False,df2_col_multiindex=False):
+
+    # this function will automatically set column widths for sheets with two tables of data on them
+    ## the two data tables must be stacked on top of each other
+    ## it will apply the width of whichever dataframe has the widest column to each column
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df1 is your data from your first dataframe
+    ### df2 is your data from your second dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ####    column_offset for both dataframes MUST be the same in all your other functions, if not 0
+    ### method is how the width is set:
+    #       'header' sets width based on the length of column names. is default
+    #       'data' sets width based on the length of the longest data point in the column
+    #       'all' sets width based off the column name or longest data point, whichever is larger
+    ### text_wrap will wrap text in headers when True
+    ### wrap_rows is how many rows wide the wrapped text should be. default is 2
+    ### df1_col_multiindex should be changed to True if you have multiple header rows for df1. defaults to False
+    ### df2_col_multiindex should be changed to True if you have multiple header rows for df2. defaults to False
+
+    import numpy as np
+    from math import ceil
+
+    # check to make sure column_offset input is valid
+    ## if column_offset is not an integer, raise an error
+    if isinstance(column_offset, int) == False:
+        raise TypeError(f"{column_offset} is not a valid argument for column_offset. column_offset must be an integer.")
+    else:
+        pass
+
+    # check to make sure wrap_rows input is valid
+    ## if wrap_rows is not an integer, raise an error
+    if isinstance(wrap_rows, int) == False:
+        raise TypeError(f"{wrap_rows} is not a valid argument for wrap_rows. wrap_rows must be an integer.")
+    else:
+        pass
+
+    # list of valid method args
+    valid_methods = ['headers', 'data', 'all']
+
+    # error if valid method arg not used
+    if method not in valid_methods:
+        raise ValueError(f"{method} is not a valid method option. Valid methods are: {valid_methods}")
+    else:
+        pass
+
+    # get data col counts
+    df1_col_count = len(df1.columns)
+    df2_col_count = len(df2.columns)
+
+    # get the count of how many row indices
+    # if there is no index set to 0 (pandas has a default index with no name)
+    if None in df1.index.names:
+        df1_num_row_indices = 0
+    else:
+        # else number of row indices is how many row index names there are    
+        df1_num_row_indices = len(df1.index.names)
+
+    if None in df2.index.names:
+        df2_num_row_indices = 0
+    else:
+        df2_num_row_indices = len(df2.index.names)
+
+    # get total columns per df
+    df1_total_cols = df1_col_count + df1_num_row_indices
+    df2_total_cols = df2_col_count + df2_num_row_indices
+
+    max_cols = max(df1_total_cols, df2_total_cols)
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+       df1_num_col_indices = len(df1.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        df1_num_col_indices = 1  
+
+    try:
+       df2_num_col_indices = len(df2.columns.levshape)
+    except:
+        df2_num_col_indices = 2  
+
+    # if df1 does not have multiple header rows:
+    if df1_col_multiindex == False:
+        if df1_num_col_indices > 1:
+            # raise error if there ARE multiple header rows
+            raise Exception(f"{df1} has a column multiindex. {df1} has {df1_num_col_indices} header rows.")
+        else:
+            # create a list holding the length of the name of each column
+            ## + 1 for 'wiggle room'
+            df1_col_name_lengths = [len(name) + 1 for name in df1.columns]
+
+            # adjust col widths for text wrapping of headers
+            if text_wrap == True:
+                # if there is text wrapping, the width of columns is their previous col_name length divided by the number of rows for wrapping 
+                ## rounded up so that it is an integer value to prevent errors
+                df1_col_name_lengths = [ceil(length/wrap_rows) for length in df1_col_name_lengths]
+            elif text_wrap==False:
+                pass
+            else:
+                raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
+
+            # create a list holding the max length of the data in each column
+            df1_max_data_lengths = []
+                
+            # iterating over the data columns:    
+            for col in list(df1):
+                # store their values in a list
+                df1_values = df1[col].tolist()
+                # create an empty list to store the lengths
+                df1_value_lengths = []
+                # iterating over the values list:
+                for row_num, value in enumerate(df1_values):
+                    # get the length in characters of each value
+                    df1_length = len(str(value))
+                    # add it to the value_lengths list
+                    df1_value_lengths.append(df1_length)
+                    # if it is the final iteration over the values with the completed value_lengths list for the column:
+                    ## + 1 since python numbering starts at 0
+                    if row_num + 1 == len(df1_values):
+                        # get the max width value
+                        ## + 1 for 'wiggle room'
+                        df1_max_data_width = max(df1_value_lengths) + 1
+                        # append it to our data lengths list
+                        df1_max_data_lengths.append(df1_max_data_width)
+
+            # create a list for the max of data and column width, whichever is greater
+            df1_max_all_lengths = np.maximum(df1_col_name_lengths, df1_max_data_lengths)
+
+            # choosing list to use based on method:
+            if method == 'headers':
+                df1_col_widths = df1_col_name_lengths
+            elif method == 'data':
+                df1_col_widths = df1_max_data_lengths
+            elif method ==  'all':
+                df1_col_widths = df1_max_all_lengths
+
+            # get widths of index columns
+            # if there is no index, set width list to the column width list
+            if df1_num_row_indices == 0:
+                df1_width_list = df1_col_widths 
+            # if there is a single row index:
+            elif df1_num_row_indices == 1:
+                # gets the length of all the values in the index
+                df1_index_values = [len(value) for row_num, value in enumerate(df1.index.values)]
+
+                # gets the max of the index values or the name of the index, whichever is greater
+                ## + 1 for 'wiggle room'
+                ## in list form so .extend() will work below
+                df1_max_index_lengths = [max(max(df1_index_values), len(df1.index.name)) + 1]
+
+                # creates a copy of the index length list so we do not modify the original
+                df1_width_list = df1_max_index_lengths.copy()
+
+                # adds the col widths to the index list
+                df1_width_list.extend(df1_col_widths)
+            # if these is a row multiindex:
+            else:
+                # create empty list to hold max_index_lengths
+                df1_max_index_lengths = []
+
+                # iterating over row indices:
+                for col_num in range(df1_num_row_indices):
+                    # store the length of all index values in a list
+                    df1_index_values = [len(value) for i, value in enumerate(df1.index.get_level_values(col_num))]
+                    # get the max width of the longest value or title, whichever is longer
+                    ## + 1 for 'wiggle room'
+                    df1_max_index_length = max(max(df1_index_values), len(df1.index.names[col_num])) + 1
+                    # add that to the max_index_lengths list
+                    df1_max_index_lengths.append(df1_max_index_length)
+
+                # creates a copy of the index length list so we do not modify the original
+                df1_width_list = df1_max_index_lengths.copy()
+
+                # adds the col widths to the index list
+                df1_width_list.extend(df1_col_widths)          
+            
+            # if the total number of columns for the dataframe is less than the total columns to be formatted:
+            if df1_total_cols < max_cols:
+                # iterating through our number of columns to be formatted:
+                for col_num in range(max_cols):
+                    try:
+                        # keep list values that exist
+                        df1_width_list[col_num] == df1_width_list[col_num]
+                    except IndexError:
+                        # add 0 to end of list for number of extra columns the other dataframe has
+                        df1_width_list.append(0)
+    
+    # if the dataframe has two header rows:
+    elif df1_col_multiindex == True:
+        if df1_num_col_indices != 2:
+            # raise error if there are NOT exactly two header rows
+            raise Exception(f"{df1} has {df1_num_col_indices} header rows. df1_col_multiindex only works for 2 header rows.")
+        else:
+            # create a list holding the length of the name of each column
+            ## + 1 for 'wiggle room'
+            df1_col_name_lengths = [len(name) + 1 for name in df1.columns.get_level_values(1)]
+
+            # adjust col widths for text wrapping of headers
+            if text_wrap == True:
+                # if there is text wrapping, the width of columns is their previous col_name length 
+                # divided by the number of rows for wrapping 
+                ## rounded up so that it is an integer value to prevent errors
+                df1_col_name_lengths = [ceil(length/wrap_rows) for length in df1_col_name_lengths]
+            elif text_wrap==False:
+                pass
+            else:
+                raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
+
+            # create a list holding the max length of the data in each column
+            df1_max_data_lengths = []
+                
+            # iterating over the data columns:    
+            for col in list(df1):
+                # store their values in a list
+                df1_values = df1[col].tolist()
+                # create an empty list to store the lengths
+                df1_value_lengths = []
+                # iterating over the values list:
+                for row_num, value in enumerate(df1_values):
+                    # get the length in characters of each value
+                    df1_length = len(str(value))
+                    # add it to the value_lengths list
+                    df1_value_lengths.append(df1_length)
+                    # if it is the final iteration over the values with the completed value_lengths list for the column:
+                    ## + 1 since python numbering starts at 0
+                    if row_num + 1 == len(df1_values):
+                        # get the max width value
+                        ## + 1 for 'wiggle room'
+                        df1_max_data_width = max(df1_value_lengths) + 1
+                        # append it to our data lengths list
+                        df1_max_data_lengths.append(df1_max_data_width) 
+            
+            # create a list for the max of data and column width, whichever is greater
+            df1_max_all_lengths = np.maximum(df1_col_name_lengths, df1_max_data_lengths)
+
+            # choosing list to use based on method:
+            if method == 'headers':
+                df1_col_widths = df1_col_name_lengths
+            elif method == 'data':
+                df1_col_widths = df1_max_data_lengths
+            elif method ==  'all':
+                df1_col_widths = df1_max_all_lengths
+
+            # get row index col widths
+            
+            # if there is no row index:  
+            if df1_num_row_indices == 0:
+                # set the width list to the column widths
+                df1_width_list = df1_col_widths 
+            # if these is a single row index:
+            elif df1_num_row_indices == 1:
+                # gets the length of all the values in the index
+                df1_index_values = [len(value) for row_num, value in enumerate(df1.index.values)]
+
+                # gets the max of the index values or the name of the index, whichever is greater
+                ## + 1 for 'wiggle room'
+                df1_max_index_lengths = [max(max(df1_index_values), len(df1.index.name)) + 1]
+
+                # create a copy so we don't modify the original
+                df1_width_list = df1_max_index_lengths.copy()
+
+                # add the data column widths to the list
+                df1_width_list.extend(df1_col_widths)
+            # else for row multiindex:
+            else:
+                # create empty list to hold max_index_lengths
+                df1_max_index_lengths = []
+
+                # iterating over row indices:
+                for col_num in range(df1_num_row_indices):
+                    # store the length of all index values in a list
+                    df1_index_values = [len(value) for i, value in enumerate(df1.index.get_level_values(col_num))]
+                    # get the max width of the longest value or title, whichever is longer
+                    ## + 1 for 'wiggle room'
+                    df1_max_index_length = max(max(df1_index_values), len(df1.index.names[col_num])) + 1
+                    # add that to the max_index_lengths list
+                    df1_max_index_lengths.append(df1_max_index_length)
+
+                # create a copy of index lengths so we don't modify original
+                df1_width_list = df1_max_index_lengths.copy()
+
+                # add col width lengths to list
+                df1_width_list.extend(df1_col_widths)          
+            
+            # if the total number of columns for the dataframe is less than the total columns to be formatted:
+            if df1_total_cols < max_cols:
+                # iterating through our columns to be formatted:
+                for col_num in range(max_cols):
+                    try:
+                        # keep list values
+                        df1_width_list[col_num] == df1_width_list[col_num]
+                    except IndexError:
+                        # add 0 to end of list for number of extra columns the other dataframe has
+                        df1_width_list.append(0) 
+        
+
+    # if df2 does not have multiple header rows:
+    if df2_col_multiindex == False:
+        if df2_num_col_indices > 1:
+            # raise error if there ARE multiple header rows
+            raise Exception(f"{df2} has a column multiindex. {df2} has {df2_num_col_indices} header rows.")
+        else:
+            # create a list holding the length of the name of each column
+            ## + 1 for 'wiggle room'
+            df2_col_name_lengths = [len(name) + 1 for name in df2.columns]
+
+            # adjust col widths for text wrapping of headers
+            if text_wrap == True:
+                # if there is text wrapping, the width of columns is their previous col_name length divided by the number of rows for wrapping 
+                ## rounded up so that it is an integer value to prevent errors
+                df2_col_name_lengths = [ceil(length/wrap_rows) for length in df2_col_name_lengths]
+            elif text_wrap==False:
+                pass
+            else:
+                raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
+
+            # create a list holding the max length of the data in each column
+            df2_max_data_lengths = []
+                
+            # iterating over the data columns:    
+            for col in list(df2):
+                # store their values in a list
+                df2_values = df2[col].tolist()
+                # create an empty list to store the lengths
+                df2_value_lengths = []
+                # iterating over the values list:
+                for row_num, value in enumerate(df2_values):
+                    # get the length in characters of each value
+                    df2_length = len(str(value))
+                    # add it to the value_lengths list
+                    df2_value_lengths.append(df2_length)
+                    # if it is the final iteration over the values with the completed value_lengths list for the column:
+                    ## + 1 since python numbering starts at 0
+                    if row_num + 1 == len(df2_values):
+                        # get the max width value
+                        ## + 1 for 'wiggle room'
+                        df2_max_data_width = max(df2_value_lengths) + 1
+                        # append it to our data lengths list
+                        df2_max_data_lengths.append(df2_max_data_width)
+
+            # create a list for the max of data and column width, whichever is greater
+            df2_max_all_lengths = np.maximum(df2_col_name_lengths, df2_max_data_lengths)
+
+            # choosing list to use based on method:
+            if method == 'headers':
+                df2_col_widths = df2_col_name_lengths
+            elif method == 'data':
+                df2_col_widths = df2_max_data_lengths
+            elif method ==  'all':
+                df2_col_widths = df2_max_all_lengths
+
+            # get widths of index columns
+            # if there is no index, set width list to the column width list
+            if df2_num_row_indices == 0:
+                df2_width_list = df2_col_widths 
+            # if there is a single row index:
+            elif df2_num_row_indices == 1:
+                # gets the length of all the values in the index
+                df2_index_values = [len(value) for row_num, value in enumerate(df2.index.values)]
+
+                # gets the max of the index values or the name of the index, whichever is greater
+                ## + 1 for 'wiggle room'
+                ## in list form so .extend() will work below
+                df2_max_index_lengths = [max(max(df2_index_values), len(df2.index.name)) + 1]
+
+                # creates a copy of the index length list so we do not modify the original
+                df2_width_list = df2_max_index_lengths.copy()
+
+                # adds the col widths to the index list
+                df2_width_list.extend(df2_col_widths)
+            # if these is a row multiindex:
+            else:
+                # create empty list to hold max_index_lengths
+                df2_max_index_lengths = []
+
+                # iterating over row indices:
+                for col_num in range(df2_num_row_indices):
+                    # store the length of all index values in a list
+                    df2_index_values = [len(value) for i, value in enumerate(df2.index.get_level_values(col_num))]
+                    # get the max width of the longest value or title, whichever is longer
+                    ## + 1 for 'wiggle room'
+                    df2_max_index_length = max(max(df2_index_values), len(df2.index.names[col_num])) + 1
+                    # add that to the max_index_lengths list
+                    df2_max_index_lengths.append(df2_max_index_length)
+
+                # creates a copy of the index length list so we do not modify the original
+                df2_width_list = df2_max_index_lengths.copy()
+
+                # adds the col widths to the index list
+                df2_width_list.extend(df2_col_widths)          
+            
+            # if the total number of columns for the dataframe is less than the total columns to be formatted:
+            if df2_total_cols < max_cols:
+                # iterating through our number of columns to be formatted:
+                for col_num in range(max_cols):
+                    try:
+                        # keep list values that exist
+                        df2_width_list[col_num] == df2_width_list[col_num]
+                    except IndexError:
+                        # add 0 to end of list for number of extra columns the other dataframe has
+                        df2_width_list.append(0)
+    
+    # if the dataframe has two header rows:
+    elif df2_col_multiindex == True:
+        if df2_num_col_indices != 2:
+            # raise error if there are NOT exactly two header rows
+            raise Exception(f"{df2} has {df2_num_col_indices} header rows. df2_col_multiindex only works for 2 header rows.")
+        else:
+            # create a list holding the length of the name of each column
+            ## + 1 for 'wiggle room'
+            df2_col_name_lengths = [len(name) + 1 for name in df2.columns.get_level_values(1)]
+
+            # adjust col widths for text wrapping of headers
+            if text_wrap == True:
+                # if there is text wrapping, the width of columns is their previous col_name length 
+                # divided by the number of rows for wrapping 
+                ## rounded up so that it is an integer value to prevent errors
+                df2_col_name_lengths = [ceil(length/wrap_rows) for length in df2_col_name_lengths]
+            elif text_wrap==False:
+                pass
+            else:
+                raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
+
+            # create a list holding the max length of the data in each column
+            df2_max_data_lengths = []
+                
+            # iterating over the data columns:    
+            for col in list(df2):
+                # store their values in a list
+                df2_values = df2[col].tolist()
+                # create an empty list to store the lengths
+                df2_value_lengths = []
+                # iterating over the values list:
+                for row_num, value in enumerate(df2_values):
+                    # get the length in characters of each value
+                    df2_length = len(str(value))
+                    # add it to the value_lengths list
+                    df2_value_lengths.append(df2_length)
+                    # if it is the final iteration over the values with the completed value_lengths list for the column:
+                    ## + 1 since python numbering starts at 0
+                    if row_num + 1 == len(df2_values):
+                        # get the max width value
+                        ## + 1 for 'wiggle room'
+                        df2_max_data_width = max(df2_value_lengths) + 1
+                        # append it to our data lengths list
+                        df2_max_data_lengths.append(df2_max_data_width) 
+            
+            # create a list for the max of data and column width, whichever is greater
+            df2_max_all_lengths = np.maximum(df2_col_name_lengths, df2_max_data_lengths)
+
+            # choosing list to use based on method:
+            if method == 'headers':
+                df2_col_widths = df2_col_name_lengths
+            elif method == 'data':
+                df2_col_widths = df2_max_data_lengths
+            elif method ==  'all':
+                df2_col_widths = df2_max_all_lengths
+
+            # get row index col widths
+            
+            # if there is no row index:  
+            if df2_num_row_indices == 0:
+                # set the width list to the column widths
+                df2_width_list = df2_col_widths 
+            # if these is a single row index:
+            elif df2_num_row_indices == 1:
+                # gets the length of all the values in the index
+                df2_index_values = [len(value) for row_num, value in enumerate(df2.index.values)]
+
+                # gets the max of the index values or the name of the index, whichever is greater
+                ## + 1 for 'wiggle room'
+                df2_max_index_lengths = [max(max(df2_index_values), len(df2.index.name)) + 1]
+
+                # create a copy so we don't modify the original
+                df2_width_list = df2_max_index_lengths.copy()
+
+                # add the data column widths to the list
+                df2_width_list.extend(df2_col_widths)
+            # else for row multiindex:
+            else:
+                # create empty list to hold max_index_lengths
+                df2_max_index_lengths = []
+
+                # iterating over row indices:
+                for col_num in range(df2_num_row_indices):
+                    # store the length of all index values in a list
+                    df2_index_values = [len(value) for i, value in enumerate(df2.index.get_level_values(col_num))]
+                    # get the max width of the longest value or title, whichever is longer
+                    ## + 1 for 'wiggle room'
+                    df2_max_index_length = max(max(df2_index_values), len(df2.index.names[col_num])) + 1
+                    # add that to the max_index_lengths list
+                    df2_max_index_lengths.append(df2_max_index_length)
+
+                # create a copy of index lengths so we don't modify original
+                df2_width_list = df2_max_index_lengths.copy()
+
+                # add col width lengths to list
+                df2_width_list.extend(df2_col_widths)          
+            
+            # if the total number of columns for the dataframe is less than the total columns to be formatted:
+            if df2_total_cols < max_cols:
+                # iterating through our columns to be formatted:
+                for col_num in range(max_cols):
+                    try:
+                        # keep list values
+                        df2_width_list[col_num] == df2_width_list[col_num]
+                    except IndexError:
+                        # add 0 to end of list for number of extra columns the other dataframe has
+                        df2_width_list.append(0)
+
+    # the final width list takes the maximum width value for each column from the two dataframes
+    width_list = np.maximum(df1_width_list, df2_width_list)
+
+    # iterating over the total columns:
+    for col_num, width in enumerate(width_list):
+        # apply the matching width to the column
+        sheet.set_column(col_num + column_offset, col_num + column_offset, width)
+
+    
