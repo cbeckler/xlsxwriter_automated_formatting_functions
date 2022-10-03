@@ -2349,3 +2349,32 @@ def insert_title(df, wb, sheet, title, font_size=16, font_color='#000000', bg_co
 
     # applying title format and inserting title
     sheet.write(row_num, col_num, title, title_format)
+
+
+######################## TWO TABLES PER SHEET FORMATTING ##################################
+
+###                      ANY SHAPE DATAFRAMES                        ###
+
+def create_skip_rows(df, header_offset=0, rows_between=2):
+
+    # this function will generate the amount of rows to skip if you are putting two tables on the same sheet
+    ## it is meant to be used when there are two tables, one under the top one
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your top dataframe
+
+    ## OPTIONAL:
+    ### header_offset is your blank rows for titles for your top table. it should match header_offset from functions you used to format it
+    ### rows_between is the number of rows between tables. defaults to 
+
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        num_col_indices = 1  
+
+    # funtion returns the number of rows in the dataframe + number of header rows + header_offset + rows _between for num rows to skip
+    return len(df) + num_col_indices + header_offset + rows_between
