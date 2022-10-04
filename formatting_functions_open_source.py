@@ -4,8 +4,11 @@
 
 ###                 ANY NUMBER ROW INDICES AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
+from textwrap import wrap
+
+
 def format_header(df, wb, sheet,  header_bgcolor = '#002387', header_fontcolor = '#FFFFFF', index_bgcolor =  '#002387', \
-index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False):
+index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=False, text_wrap=False):
 
     # This function will apply formatting to your header row    
     ## Index is same color as normal column headers, but this can be changed if desired w/ index_color optional args
@@ -26,7 +29,9 @@ index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fals
     ### index_fontcolor is the font color for your index headers
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
+    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date)
+    ###     or CamelCase (BirthDate)
+    ### text_wrap will wrap the column header labels 
     
     from utility_functions import clean_header_string
 
@@ -40,8 +45,12 @@ index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fals
         num_row_indices = len(df.index.names)
 
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
-        'bottom':True})
+    if text_wrap == True:
+        header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+        'bottom':True, 'text_wrap':True, 'valign':'vcenter'})
+    else:
+        header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+            'bottom':True})
 
     # optional clean header labels
     
@@ -94,11 +103,19 @@ index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fals
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
     ## also allowing me to add R border to the rightmost index only
-    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,\
-        'right':True}) 
-    # the index headers to the left lack the right border
-    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
-        'bottom':True})
+
+    if text_wrap == True:
+        index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,\
+            'right':True,'text_wrap':True, 'valign':'vcenter'}) 
+        # the index headers to the left lack the right border
+        index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True,'text_wrap':True, 'valign':'vcenter'})
+    else:
+        index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left','bottom':True,\
+            'right':True}) 
+        # the index headers to the left lack the right border
+        index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True})
 
     # iterating over the number of row indices present:
     for col_num in range(num_row_indices):
@@ -117,7 +134,7 @@ index_fontcolor = '#FFFFFF', header_offset=0, column_offset=0, clean_header=Fals
 
 def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_fontcolor = '#FFFFFF',\
     hilite_bgcolor = '#00A111', hilite_fontcolor = '#FFFFFF', index_bgcolor = '#002387', index_fontcolor = '#FFFFFF', \
-    header_offset=0, column_offset=0, clean_header=False):
+    header_offset=0, column_offset=0, clean_header=False, text_wrap=False):
 
     # This function will apply formatting to your headers that will automatically apply a different color to your last column to highlight it
     ## This is especially useful for time series: highlighting most recent year etc
@@ -141,7 +158,9 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
     ### index_fontcolor is the font color for your index headers
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) or CamelCase (BirthDate)
+    ### clean_header will give your columns title format names (ex: Birth Date) instead of underscore (birth_date) 
+    ###      or CamelCase (BirthDate)
+    ### text_wrap will wrap the column header labels
 
     from utility_functions import clean_header_string
     
@@ -199,10 +218,17 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
 
     # create format templates
-    header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
-        'bottom':True})
-    last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center',\
-        'bottom':True})
+
+    if text_wrap == True:
+        header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+            'bottom':True,'text_wrap':True,'valign':'vcenter'})
+        last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center',\
+            'bottom':True,'text_wrap':True,'valign':'vcenter'})    
+    else:
+        header_format = wb.add_format({'bold':True,'bg_color':header_bgcolor,'font_color':header_fontcolor,'align':'center',\
+            'bottom':True})
+        last_col_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'align':'center',\
+            'bottom':True})
 
     ## the header_format template is applied in the first row for all columns, which also keeps the value from the df header row
     ## for the last column, the color of the header row will be different, applying last_col_format
@@ -223,11 +249,19 @@ def last_col_highlight_header(df, wb, sheet, header_bgcolor = '#002387', header_
 
     # the header loop cannot be applied to the index, so formatting is manually applied by overwriting the cell 
     ## also allowing me to add R border to the rightmost index only
-    index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
-        'bottom':True,'right':True}) 
-    # the index headers to the left lack the right border
-    index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
-        'bottom':True})
+    
+    if text_wrap == True:
+        index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True,'right':True,'text_wrap':True,'valign':'vcenter'}) 
+        # the index headers to the left lack the right border
+        index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True,'text_wrap':True,'valign':'vcenter'})
+    else:    
+        index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True,'right':True}) 
+        # the index headers to the left lack the right border
+        index_left_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'align':'left',\
+            'bottom':True})
 
     # iterating over the number of row indices present:
     for col_num in range(num_row_indices):
@@ -348,11 +382,17 @@ def format_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002387', header
   
     index1_format = wb.add_format({'bg_color':index1_bgcolor})
     index1_last_format = wb.add_format({'bg_color':index1_bgcolor,'right':True})
-    
-    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
-        'valign':'vcenter'})
-    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
-        'bottom':True,'valign':'vcenter'})
+
+    if text_wrap == True:
+        index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+            'valign':'vcenter','text_wrap':True})
+        index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+            'bottom':True,'valign':'vcenter','text_wrap':True})
+    else:
+        index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+            'valign':'vcenter'})
+        index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+            'bottom':True,'valign':'vcenter'})
 
     # optional clean header labels
     
@@ -583,10 +623,16 @@ def last_col_highlight_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002
     index1_format = wb.add_format({'bg_color':index1_bgcolor})
     index1_last_format = wb.add_format({'bg_color':index1_bgcolor,'right':True})
     
-    index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
-        'valign':'vcenter'})
-    index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
-        'bottom':True,'valign':'vcenter'})
+    if text_wrap==True:
+        index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+            'valign':'vcenter','text_wrap':True})
+        index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+            'bottom':True,'valign':'vcenter','text_wrap':True})
+    else:
+        index2_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'bottom':True,\
+            'valign':'vcenter'})
+        index2_last_format = wb.add_format({'bold':True,'bg_color':index2_bgcolor,'font_color':index2_fontcolor,'right':True,\
+            'bottom':True,'valign':'vcenter'})
 
     # optional clean header labels
     
@@ -718,7 +764,7 @@ def last_col_highlight_header_multiindex(df, wb, sheet,  header1_bgcolor = '#002
 
 ###                 SINGLE ROW INDEX AND ANY NUMBER OF COLUMN LEVELS DATAFRAMES                 ###
 
-def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True):
+def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True, text_wrap=False, wrap_rows=2):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with single row index and any number of column levels
@@ -733,8 +779,12 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    ### set_width automatically sets your index width when True. defaults to True
+    ### set_width automatically sets your index widthl when True. defaults to True
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
 
+    from math import ceil
 
     # if there is no index set raise error
     if None in df.index.names:
@@ -765,9 +815,15 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True
         # gets the length of all the values in the index
         index_values = [len(value) for row_num, value in enumerate(df.index.values)]
 
+        # index name length
+        if text_wrap == True and " " in df.index.name:
+            name_length = ceil(len(df.index.name)/wrap_rows)
+        else: 
+            name_length = len(df.index.name)
+
         # gets the max of the index values or the name of the index, whichever is greater
         ## + 1 for 'wiggle room'
-        max_index_length = max(max(index_values), len(df.index.name)) + 1
+        max_index_length = max(max(index_values), name_length) + 1
 
         # set index column width
         sheet.set_column(column_offset, column_offset, max_index_length)
@@ -776,7 +832,8 @@ def format_index(df, wb, sheet, header_offset=0, column_offset=0, set_width=True
 
 
 def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor='FFFFFF', \
-    hilite_bgcolor='#00A111', hilite_fontcolor='FFFFFF', header_offset=0, column_offset=0, set_width=True):
+    hilite_bgcolor='#00A111', hilite_fontcolor='FFFFFF', header_offset=0, column_offset=0, set_width=True, \
+    text_wrap=False, wrap_rows=2):
 
     # This function will apply formatting to your index to bold it and give a right border and bottom borders
     ## It will fill one color for all your index row backgrounds and a different color for your last index row value as a highlight
@@ -797,8 +854,12 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
     ### set_width automatically sets your index width when True. defaults to True
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
 
-    
+    from math import ceil
+
     # if there is no index set raise error
     if None in df.index.names:
         raise Exception("No index set for dataframe.")
@@ -812,7 +873,7 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
     except:
         num_col_indices = 1   
     
-    # for summary since only periods are the row and not column index, new period row formats are created
+    # index formats
     index_format = wb.add_format({'bold':True,'bg_color':index_bgcolor,'font_color':index_fontcolor,'right':True,\
         'bottom':True})
     last_index_format = wb.add_format({'bold':True,'bg_color':hilite_bgcolor,'font_color':hilite_fontcolor,'right':True,\
@@ -841,9 +902,15 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
         # gets the length of all the values in the index
         index_values = [len(value) for row_num, value in enumerate(df.index.values)]
 
+        # get length of index name
+        if text_wrap == True and " " in df.index.name:
+            name_width = ceil(len(df.index.name)/wrap_rows)
+        else:
+            name_width = len(df.index.name)
+
         # gets the max of the index values or the name of the index, whichever is greater
         ## + 1 for 'wiggle room'
-        max_index_length = max(max(index_values), len(df.index.name)) + 1
+        max_index_length = max(max(index_values), name_width) + 1
 
         # set index column width
         sheet.set_column(column_offset, column_offset, max_index_length) 
@@ -855,7 +922,6 @@ def highlight_last_index(df, wb, sheet, index_bgcolor='#002387', index_fontcolor
 
 def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
 
-    from unittest import skip
     from utility_functions import return_divisible_ints
 
     # This function will merge the cells in your index columns that are from the same category
@@ -873,8 +939,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
 
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
-    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0    
 
     #getting count of row_indices
 
@@ -941,7 +1006,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
     for col_num, merge_n in enumerate(cat_row_counts):        
         #skip if there are no cells to merge
         if merge_n == 0 or merge_n == 1:
-            skip 
+            pass
         else:
             # create a list using return_divisible_ints with 0 as the start_num and our count of data rows as the end_num of range, 
             # divided by merge_n
@@ -962,7 +1027,7 @@ def merge_row_index_cells(df, wb, sheet, header_offset=0, column_offset=0):
                           'Forgot to Import Data!')
 
 
-def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_width=True):
+def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_width=True, text_wrap=False, wrap_rows=2):
 
     # This function will apply formatting to your index to bold it and give a right border
     ## Meant only for dataframes with row mulitiindex and and number of columns levels
@@ -980,7 +1045,12 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_w
     ## OPTIONAL:
     ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    ### set_width automatically sets your index width when True. defaults to True
+    ### set_width automatically sets your index width when True. defaults to True    
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
+
+    from math import ceil
 
     #getting count of row_indices
     # if there is no index set raise error
@@ -1089,9 +1159,14 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_w
         for col_num in range(num_row_indices):
             # store the length of all index values in a list
             index_values = [len(value) for i, value in enumerate(df.index.get_level_values(col_num))]
+            # get index name length
+            if text_wrap == True and " " in df.index.names[col_num]:
+                name_width = ceil(len(df.index.names[col_num])/wrap_rows)
+            else:
+                name_width = len(df.index.names[col_num])
             # get the max width of the longest value or title, whichever is longer
             ## + 1 for 'wiggle room'
-            max_index_length = max(max(index_values), len(df.index.names[col_num])) + 1
+            max_index_length = max(max(index_values), name_width) + 1
             # add that to the max_index_lengths list
             max_index_lengths.append(max_index_length)
 
@@ -1102,6 +1177,8 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_w
     else: 
         pass
 
+    
+
 
 ######################## DATA FORMATTING ##################################
 
@@ -1109,7 +1186,7 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_w
 ###                ANY NUMBER ROW INDICES AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
 
-def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
+def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0, text_wrap=False, wrap_rows=2):
 
     # adapted from a solution from dfresh22 found at 
     # https://stackoverflow.com/questions/29463274/simulate-autofit-column-in-xslxwriter
@@ -1131,8 +1208,13 @@ def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
     #       'header' sets width based on the length of column names. is default
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
 
     # error if entered col_name not in dataframe
+
+    from math import ceil
 
     # create list of all col_names
     col_name_list = [col_name for col_name in df.columns]
@@ -1153,7 +1235,10 @@ def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
 
     # create an object holding the length of the name of the column
     ## + 1 for 'wiggle room'
-    col_name_length = len(df[col_name].name) + 1
+    if text_wrap == True and " " in df[col_name].name:
+        col_name_length = ceil(len(df[col_name].name)/wrap_rows) + 1
+    else:
+        col_name_length = len(df[col_name].name) + 1
 
     # getting length of longest data point
 
@@ -1339,7 +1424,8 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None,
                         data_format)
 
 
-def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width_method=None, column_offset=0):
+def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width_method=None, column_offset=0, \
+    text_wrap=False, wrap_rows=2):
 
     # This function will apply the specified numeric formatting to all data columns
     ## Meant only for dataframes that have the same data type for ALL non-index columns, but can have any number of columns and indices
@@ -1372,8 +1458,12 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
 
     import numpy as np
+    from math import ceil
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -1424,7 +1514,17 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
 
     # create a list holding the length of the name of each column
     ## + 1 for 'wiggle room'
-    col_name_lengths = [len(name) + 1 for name in df.columns]
+    if text_wrap == True:
+        col_names = [name for name in df.columns]
+        col_name_lengths = []
+        for name in col_names:
+            if " " in name:
+                length = ceil(len(name)/wrap_rows) + 1
+            else:
+                length = len(name) + 1
+            col_name_lengths.append(length)
+    else:
+        col_name_lengths = [len(name) + 1 for name in df.columns]
 
     # create a list holding the max length of the data in each column
     max_data_lengths = []
@@ -1480,7 +1580,8 @@ def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width
         sheet.set_column(col_num + num_row_indices + column_offset, col_num + df_column_count + column_offset, width, data_format)
 
 
-def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None, col_width_num=14, column_offset=0):
+def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None, col_width_num=14, column_offset=0, \
+    text_wrap=False, wrap_rows=2):
 
     # This function will apply the specified formatting to the specified column
     ## Can work on dataframes with single row index and single row of column headers
@@ -1516,6 +1617,11 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
     #       'header' sets width based on the length of column names
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
+    
+    from math import ceil
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -1578,7 +1684,10 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
 
     # create an object holding the length of the name of the column
     ## + 1 for 'wiggle room'
-    col_name_length = len(df[col_name].name) + 1
+    if text_wrap == True and " " in df[col_name].name:
+        col_name_length = ceil(len(df[col_name])/wrap_rows) + 1
+    else:
+        col_name_length = len(df[col_name].name) + 1
 
     # getting length of longest data point
 
@@ -1630,7 +1739,7 @@ def set_col_data_type(df, wb, sheet, col_name, data_type, col_width_method=None,
 ###                 ANY NUMBER ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
 
-def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
+def set_column_widths(df, wb, sheet, column_offset=0, method='headers', text_wrap=False, wrap_rows=2):
 
     import numpy as np
 
@@ -1654,7 +1763,11 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
     #       'header' sets width based on the length of column names. is default
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
+    ### text_wrap specifies if you index headers were wrapped when applying header formatting. default is False
+    ### wrap_rows is how many rows wide the wrapped header text should be. default is 2
+    ####        should be used if text_wrap is True
     
+    from math import ceil
 
     # list of valid method args
     valid_methods = ['headers', 'data', 'all']
@@ -1668,7 +1781,16 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
     # create a list holding the length of the name of each column
     ## + 1 for 'wiggle room'
-    col_name_lengths = [len(name) + 1 for name in df.columns]
+    if text_wrap == True:
+        col_name_lengths = []
+        for name in df.columns:
+            if " " in name:
+                length = ceil(len(name)/wrap_rows) + 1
+            else:
+                length = len(name) + 1
+            col_name_lengths.append(length)
+    else:
+        col_name_lengths = [len(name) + 1 for name in df.columns]
 
     # create a list holding the max length of the data in each column
     max_data_lengths = []
@@ -2153,7 +2275,7 @@ def set_multiindex_column_widths(df, wb, sheet, column_offset=0, method='headers
 
     # create a list holding the length of the name of each column
     ## + 1 for 'wiggle room'
-    col_name_lengths = [len(name) + 1 for name in df.columns.get_level_values(1)]
+    #col_name_lengths = [len(name) + 1 for name in df.columns.get_level_values(1)]
 
     # create a list holding the max length of the data in each column
     max_data_lengths = []
@@ -2192,9 +2314,15 @@ def set_multiindex_column_widths(df, wb, sheet, column_offset=0, method='headers
     if text_wrap == True:
         # if there is text wrapping, the width of columns is their previous col_name length divided by the number of rows for wrapping 
         ## rounded up so that it is an integer value to prevent errors
-       col_name_lengths = [ceil(length/wrap_rows) for length in col_name_lengths]
+        col_name_lengths = []
+        for name in df.columns.get_level_values(1):
+            if " " in name:
+                length = ceil(len(name)/wrap_rows) + 1
+            else:
+                length = len(name) + 1
+            col_name_lengths.append(length)
     elif text_wrap==False:
-        pass
+        col_name_lengths = [len(name) + 1 for name in df.columns.get_level_values(1)]
     else:
         raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
 
@@ -3172,6 +3300,7 @@ def set_4d_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0,
             pass    
 
 
+
 ######################## EDGE BORDER FORMATTING ##################################
 
 ###                      ANY SHAPE DATAFRAMES                        ###
@@ -3413,7 +3542,7 @@ def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',te
     #       'header' sets width based on the length of column names. is default
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
-    ### text_wrap will wrap text in headers when True
+    ### text_wrap will wrap text in headers when True. default is False
     ### wrap_rows is how many rows wide the wrapped text should be. default is 2
     ### df1_col_multiindex should be changed to True if you have multiple header rows for df1. defaults to False
     ### df2_col_multiindex should be changed to True if you have multiple header rows for df2. defaults to False
@@ -3487,15 +3616,21 @@ def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',te
         else:
             # create a list holding the length of the name of each column
             ## + 1 for 'wiggle room'
-            df1_col_name_lengths = [len(name) + 1 for name in df1.columns]
+            df1_col_names = [name for name in df1.columns]
 
             # adjust col widths for text wrapping of headers
             if text_wrap == True:
                 # if there is text wrapping, the width of columns is their previous col_name length divided by the number of rows for wrapping 
                 ## rounded up so that it is an integer value to prevent errors
-                df1_col_name_lengths = [ceil(length/wrap_rows) for length in df1_col_name_lengths]
+                df1_col_name_lengths = []
+                for name in df1_col_names:
+                    if " " in name:
+                        df1_length = ceil(len(name)/wrap_rows) + 1
+                    else:
+                        df1_length = len(name) + 1
+                    df1_col_name_lengths.append(df1_length)
             elif text_wrap==False:
-                pass
+                df1_col_name_lengths = [len(name) + 1 for name in df1_col_names]
             else:
                 raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
 
@@ -3593,16 +3728,22 @@ def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',te
         else:
             # create a list holding the length of the name of each column
             ## + 1 for 'wiggle room'
-            df1_col_name_lengths = [len(name) + 1 for name in df1.columns.get_level_values(1)]
+            df1_col_names = [name for name in df1.columns.get_level_values(1)]
 
             # adjust col widths for text wrapping of headers
             if text_wrap == True:
+                df1_col_name_lengths = []
                 # if there is text wrapping, the width of columns is their previous col_name length 
                 # divided by the number of rows for wrapping 
                 ## rounded up so that it is an integer value to prevent errors
-                df1_col_name_lengths = [ceil(length/wrap_rows) for length in df1_col_name_lengths]
+                for name in df1_col_names:
+                    if " " in name:
+                        df1_length = ceil(len(name)/wrap_rows) + 1
+                    else:
+                        df1_length = len(name) + 1
+                    df1_col_name_lengths.append(df1_length)
             elif text_wrap==False:
-                pass
+                df1_col_name_lengths = [len(name) + 1 for name in df1_col_names]
             else:
                 raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
 
@@ -3702,15 +3843,19 @@ def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',te
         else:
             # create a list holding the length of the name of each column
             ## + 1 for 'wiggle room'
-            df2_col_name_lengths = [len(name) + 1 for name in df2.columns]
+            df2_col_names = [name for name in df2.columns]
 
             # adjust col widths for text wrapping of headers
             if text_wrap == True:
-                # if there is text wrapping, the width of columns is their previous col_name length divided by the number of rows for wrapping 
-                ## rounded up so that it is an integer value to prevent errors
-                df2_col_name_lengths = [ceil(length/wrap_rows) for length in df2_col_name_lengths]
+                df2_col_name_lengths = []
+                for name in df2_col_names:
+                    if " " in name:
+                        df2_length = ceil(len(name)/wrap_rows) + 1
+                    else:
+                        df2_length = len(name) + 1
+                    df2_col_name_lengths.append(df2_length)
             elif text_wrap==False:
-                pass
+                df2_col_name_lengths = [len(name) + 1 for name in df2_col_names]
             else:
                 raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
 
@@ -3808,16 +3953,22 @@ def two_table_col_widths(df1, df2, wb, sheet,column_offset=0,method='headers',te
         else:
             # create a list holding the length of the name of each column
             ## + 1 for 'wiggle room'
-            df2_col_name_lengths = [len(name) + 1 for name in df2.columns.get_level_values(1)]
+            df2_col_names = [name for name in df2.columns.get_level_values(1)]
 
             # adjust col widths for text wrapping of headers
             if text_wrap == True:
+                df2_col_name_lengths = []
                 # if there is text wrapping, the width of columns is their previous col_name length 
                 # divided by the number of rows for wrapping 
                 ## rounded up so that it is an integer value to prevent errors
-                df2_col_name_lengths = [ceil(length/wrap_rows) for length in df2_col_name_lengths]
+                for name in df2_col_names:
+                    if " " in name:
+                        df2_length = ceil(len(name)/wrap_rows) + 1
+                    else:
+                        df2_length = len(name) + 1
+                    df2_col_name_lengths.append(df2_length)
             elif text_wrap==False:
-                pass
+                df2_col_name_lengths = [len(name) + 1 for name in df2_col_names]
             else:
                 raise ValueError(f"{text_wrap} is not not a valid text_wrap argument. text_wrap must be True or False.")
 
