@@ -1103,307 +1103,6 @@ def format_row_multiindex(df, wb, sheet, header_offset=0, column_offset=0, set_w
         pass
 
 
-
-def set_4d_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0, replace_nulls=True, null_value='-', \
-    null_align='center'):
-
-    # This function will insert your data in desired cells and apply a right border to the last column of each first level category
-    # and a bottom border to the last row of each major (first) row category for the specified column
-    ## used on data with a two row column multiindex and any number of row multiindices
-
-    # ARGUMENTS
-    
-    ## MANDATORY:
-    ### df is your data from your dataframe
-    ### wb is your workbook
-    ### sheet is your worksheet
-
-    ## OPTIONAL:
-    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
-    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
-    ### data_type is the type of numeric data:
-    #### this arg should only be used if all your data is the same data type!
-    #       'numeric' = comma-separated integer (ex 1,200)
-    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
-    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
-    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
-    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
-    #       'percent' = integer percentage (ex 20%)
-    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
-    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
-    #       'date' = sql-friendly date (ex 1992-08-14)
-    #       'date_alt' = human-friendly date (ex 8/14/1992)
-    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
-    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
-    ### replace_nulls will replace null values with the specified replacement. defaults to true
-    ### null_value is what replaces nulls. defaults to '-'
-    ### null_align is the horizontal alignment for null values. defaults to center
-
-    import pandas as pd
-    
-    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
-    try:
-        num_col_indices = len(df.columns.levshape)
-    # then it will assign a value of 1 for column_indices
-    except:
-        raise Exception('Data does not have a columns multiindex')
-
-    # error if there are not 2 column header rows
-    if num_col_indices == 2:
-        pass 
-    else:
-        raise Exception(f"Function is only meant for datasets with two header rows. \
-            The number of header rows your data has is {num_col_indices}.")
-
-    #getting count of row_indices
-    # if there is no index raise error
-    if None in df.index.names:
-        raise Exception("No index set on dataframe.")
-    else:
-        # else number of row indices is how many row index names there are    
-        num_row_indices = len(df.index.names)
-
-    # exit function with error if it is not a multiindex
-    if num_row_indices == 1:
-        raise Exception("Function is not meant for single row index datasets.")
-    else:
-        pass
-
-    # check for valid alignment input
-    valid_align = ['center','left','right']
-
-    if null_align in valid_align:
-        pass
-    else:
-        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
-        
-    # create list of all col_names
-    col_name_list = [col_name for col_name in df.columns.get_level_values(1)]
-
-    if col_name not in col_name_list:
-        raise ValueError(f"{col_name} not in dataframe. Columns in data are: {col_name_list}")
-    else:
-        pass
-
-    if null_align == 'center':
-        null_format = wb.add_format({'align':'center'})
-        null_bottom_format = wb.add_format({'bottom':True, 'align':'center'})
-        null_right_format = wb.add_format({'right':True, 'align':'center'})
-        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'center'})
-    elif null_align == 'left':
-        null_format = wb.add_format({'align':'left'})
-        null_bottom_format = wb.add_format({'bottom':True, 'align':'left'})
-        null_right_format = wb.add_format({'right':True, 'align':'left'})
-        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'left'})
-    elif null_align == 'right':
-        null_format = wb.add_format({'align':'right'})
-        null_bottom_format = wb.add_format({'bottom':True, 'align':'right'})
-        null_right_format = wb.add_format({'right':True, 'align':'right'})
-        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'right'})
-
-    # list of valid dtype args
-    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
-        'date_alt','datetime','datetime_alt']    
-
-    # this if statement sets the formatting based off the data_type argument
-    ## it will raise an error to tell the user if they have entered an invalid data_type argument
-    if data_type == 'numeric':
-        data_format = wb.add_format({'num_format':'#,##0'})
-        data_bottom_format = wb.add_format({'num_format':'#,##0','bottom':True})
-        data_right_format = wb.add_format({'num_format':'#,##0','right':True})
-        data_corner_format = wb.add_format({'num_format':'#,##0','right':True,'bottom':True})
-    elif data_type == 'decimal_1':
-        data_format = wb.add_format({'num_format':'#,##0.0'})
-        data_bottom_format = wb.add_format({'num_format':'#,##0.0','bottom':True})
-        data_right_format = wb.add_format({'num_format':'#,##0.0','right':True})
-        data_corner_format = wb.add_format({'num_format':'#,##0.0','right':True,'bottom':True})
-    elif data_type == 'decimal_2':
-        data_format = wb.add_format({'num_format':'#,##0.00'})
-        data_bottom_format = wb.add_format({'num_format':'#,##0.00','bottom':True})
-        data_right_format = wb.add_format({'num_format':'#,##0.00','right':True})
-        data_right_format = wb.add_format({'num_format':'#,##0.00','right':True,'bottom':True})
-    elif data_type == 'dollar':
-        data_format = wb.add_format({'num_format':'$#,##0'})
-        data_bottom_format = wb.add_format({'num_format':'$#,##0','bottom':True})
-        data_right_format = wb.add_format({'num_format':'$#,##0','right':True})
-        data_corner_format = wb.add_format({'num_format':'$#,##0','right':True,'bottom':True})
-    elif data_type == 'dollar_cents':
-        data_format = wb.add_format({'num_format':'$#,##0.00'})
-        data_bottom_format = wb.add_format({'num_format':'$#,##0.00','bottom':True})
-        data_right_format = wb.add_format({'num_format':'$#,##0.00','right':True})
-        data_corner_format = wb.add_format({'num_format':'$#,##0.00','right':True,'bottom':True})
-    elif data_type == 'percent':
-        data_format = wb.add_format({'num_format':'0%'})
-        data_bottom_format = wb.add_format({'num_format':'0%','bottom':True})
-        data_right_format = wb.add_format({'num_format':'0%','right':True})
-        data_corner_format = wb.add_format({'num_format':'0%','right':True,'bottom':True})
-    elif data_type == 'percent_1':
-        data_format = wb.add_format({'num_format':'0.0%'})
-        data_bottom_format = wb.add_format({'num_format':'0.0%','bottom':True})
-        data_right_format = wb.add_format({'num_format':'0.0%','right':True})
-        data_corner_format = wb.add_format({'num_format':'0.0%','right':True,'bottom':True})
-    elif data_type == 'percent_2':
-        data_format = wb.add_format({'num_format':'0.00%'})
-        data_bottom_format = wb.add_format({'num_format':'0.00%','bottom':True})
-        data_right_format = wb.add_format({'num_format':'0.00%','right':True})
-        data_corner_format = wb.add_format({'num_format':'0.00%','right':True,'bottom':True})
-    elif data_type == 'date':
-        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
-        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd','bottom':True})
-        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd','right':True})
-        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd','right':True,'bottom':True})
-    elif data_type == 'date_alt':
-        data_format = wb.add_format({'num_format':'m/d/yyyy'})
-        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy','bottom':True})
-        data_right_format = wb.add_format({'num_format':'m/d/yyyy','right':True})
-        data_corner_format = wb.add_format({'num_format':'m/d/yyyy','right':True,'bottom':True})
-    elif data_type == 'datetime':
-        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
-        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','bottom':True})
-        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','right':True})
-        data_corner_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','right':True,'bottom':True})
-    elif data_type == 'datetime_alt':
-        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
-        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','bottom':True})
-        data_right_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','right':True})
-        data_corner_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','right':True,'bottom':True})
-    elif data_type == 'text':
-        print("Data types are text by default. No error, continuing function.")
-        data_bottom_format = wb.add_format({'bottom':True})
-        data_right_format = wb.add_format({'right':True})
-        data_corner_format = wb.add_format({'right':True,'bottom':True})
-    elif data_type == None:
-        data_bottom_format = wb.add_format({'bottom':True})
-        data_right_format = wb.add_format({'right':True})
-        data_corner_format = wb.add_format({'right':True,'bottom':True})
-    else:
-        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
-
-    # determining how many rows are in the major (leftmost) index by dividing the total row count by index[0] unique values
-    rows_per_major_index = int(len(df)/len(df.index.unique(0)))
-
-    # number of header row 2 values which are what we need to loop over
-    header2_n = df.columns.levshape[1]
-
-    # getting the column count
-
-    # getting the count of regular columns
-    num_cols = len(df.columns)
-    # adding num_cols and number of row indices together for total column count
-    total_cols = num_row_indices + num_cols
-
-    # value to subtract to correctly apply right border
-    col_subtract = num_row_indices - 1
-
-    # iterating over data columns excluding row index columns:
-    for col_num, df_col_name in enumerate(df.columns):
-        # if the full (multilevel) column name contains the specificed column name:
-        if col_name in df_col_name:
-            # iterating over rows containing data:
-            for row_num, value in enumerate(df.values):
-                # if no data type is assigned:
-                if data_type == None or data_type == 'text':
-                    # for the last row per first index category:
-                    if (row_num + 1)%rows_per_major_index==0:
-                        # for the last row per first index category:
-                        if (col_num+1)%header2_n==0:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_corner_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_corner_format)
-                        #else if the cell is on the last row but not the last column:
-                        else:
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                                     null_value, null_bottom_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_bottom_format)
-                    #else if the row is NOT the last month row
-                    else:
-                    # for the last row per first index category:
-                        if (col_num+1)%header2_n==0:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_right_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_right_format)
-                        # for all other cells
-                        else:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_format)
-                            else:
-                                # otherwise insert data
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num])
-                # else if data_type is not None or text:
-                else:
-                    if (row_num + 1)%rows_per_major_index==0:
-                        # for the last row per first index category:
-                        if (col_num+1)%header2_n==0:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices \
-                                    , null_value, null_corner_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_corner_format)
-                        #else if the cell is on the last row but not the last column:
-                        else:
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_bottom_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_bottom_format)
-                    #else if the row is NOT the last month row
-                    else:
-                    # for the last row per first index category:
-                        if (col_num+1)%header2_n==0:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_right_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_right_format)
-                        # for all other cells
-                        else:
-                            # we check if the value of the cell is null
-                            if pd.isna(value[col_num]):
-                                # replace value with null value and apply null formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    null_value, null_format)
-                            else:
-                                # otherwise insert data and apply formatting
-                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
-                                    value[col_num], data_format) 
-        else:
-            # skip all columns that do not match specified column name
-            pass    
-
-
-
 ######################## DATA FORMATTING ##################################
 
 
@@ -1503,10 +1202,12 @@ def set_col_width(df, wb, sheet, col_name, method='headers', column_offset=0):
 ###                 SINGLE ROW INDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
 
-def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
+def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None, replace_nulls=True, null_value='-', \
+    null_align='center'):
     
     # This function will insert your data in desired cells with a header_offset
     ## Can be used on any dataframe
+    
 
     # ARGUMENTS
     
@@ -1532,6 +1233,26 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
     #       'date_alt' = human-friendly date (ex 8/14/1992)
     #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
     #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
+
+    import pandas as pd
+
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -1599,13 +1320,23 @@ def insert_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None)
         for row_num, value in enumerate(df.values):
             # no data_type is specified:
             if data_type == None:
-                # insert the data into the cell matching the postion in the datatframe
-                ## value[] has num_row_indices subtracted from it for indexing since that was added to the col_num in range()
-                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
+                # if data is null
+                if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                    # insert null value and apply null formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_format)
+                else:
+                    # insert the data into the cell matching the postion in the datatframe
+                    ## value[] has num_row_indices subtracted from it for indexing since that was added to the col_num in range()
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
             else:
-                # insert the data into the cell and apply specified formatting
-                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                    data_format)
+                # if data is null
+                if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                    # insert null value and apply null formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_format)
+                else:
+                    # insert the data into the cell and apply specified formatting
+                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                        data_format)
 
 
 def format_single_data_type_df(df, wb, sheet, data_type, col_width=14, col_width_method=None, column_offset=0):
@@ -1990,7 +1721,8 @@ def set_column_widths(df, wb, sheet, column_offset=0, method='headers'):
 
 ###                 ROW MULTIINDEX AND SINGLE COLUMNS INDEX DATAFRAMES                 ###
 
-def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
+def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None, replace_nulls=True, null_value='-', \
+    null_align='center'):
 
     # This function will insert your data in desired cells and underline the last row per major index category
     ## Can be used on any dataframe
@@ -2019,6 +1751,11 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     #       'date_alt' = human-friendly date (ex 8/14/1992)
     #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
     #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
+
+    import pandas as pd
 
     #getting count of row_indices
     # if there is no index raise error
@@ -2033,6 +1770,24 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
         raise Exception("Function is not meant for single row index datasets.")
     else:
         pass
+
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'right'})
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -2110,25 +1865,50 @@ def insert_row_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
             if data_type == None or data_type == 'text':
                 # for the last row per first index category:
                 if (row_num + 1)%rows_per_major_index==0:
-                    # insert data with a bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_bottom_format)
+                    # we check if the value of the cell is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_bottom_format)
+                    else:
+                        # insert data with a bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                            data_bottom_format)
                 else:
-                    # insert data with no formatting
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
+                    # we check if the value of the cell is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply null format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_format)
+                    else:
+                        # insert data with no formatting
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
             else:
                 # else for the last row per first index category:
                 if (row_num + 1)%rows_per_major_index==0:
-                    # insert the data and apply the specified formatting with bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_bottom_format)
+                    # we check if the value of the cell is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_bottom_format)    
+                    else:
+                        # insert the data and apply the specified formatting with bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, \
+                            value[col_num-num_row_indices], data_bottom_format)
                 else:
-                    # insert the data and apply specified formatting (no border)
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_format)
+                    # we check if the value of the cell is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply null format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_format)
+                    else:
+                        # insert the data and apply specified formatting (no border)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, \
+                            value[col_num-num_row_indices], data_format)
 
 
-def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0):
+def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0, replace_nulls=True, \
+    null_value='-', null_align='center'):
 
     # This function will apply the specified formatting to the specified column
     ## Can work on dataframes with a row multiindex and any number of column header levels
@@ -2158,6 +1938,9 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
             
     ## OPTIONAL:
     ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
 
     #getting count of row_indices
     # if there is no index raise error
@@ -2173,6 +1956,25 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
     else:
         pass
 
+    import pandas as pd
+
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'right'})
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -2250,23 +2052,47 @@ def set_row_multiindex_col_dtype(df, wb, sheet, col_name, data_type, column_offs
                 if data_type == 'text':
                     # for the last row per first index category:
                     if (row_num + 1)%rows_per_major_index==0:
-                        # insert data with a bottom border
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                            value[col_num], data_bottom_format)
+                        # if the value is null
+                        if pd.isna(value[col_num]) and replace_nulls == True:
+                            # insert null value and apply bottom formatting
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                null_value, null_bottom_format)
+                        else:
+                            # insert data with a bottom border
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                value[col_num], data_bottom_format)
                     else:
-                        # insert data with no formatting
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                            value[col_num])
+                        # if the value is null
+                        if pd.isna(value[col_num]) and replace_nulls == True:
+                            # insert null value and apply null formatting
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                null_value, null_format)
+                        else:
+                            # insert data with no formatting
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                value[col_num])
                 else:
                     # else for the last row per first index category:
                     if (row_num + 1)%rows_per_major_index==0:
-                        # insert the data and apply the specified formatting with bottom border
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                            value[col_num], data_bottom_format)
+                        # if the value is null
+                        if pd.isna(value[col_num]) and replace_nulls == True:
+                            # insert null value and apply bottom formatting
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                null_value, null_bottom_format)
+                        else:
+                            # insert the data and apply the specified formatting with bottom border
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                value[col_num], data_bottom_format)
                     else:
-                        # insert the data and apply specified formatting (no border)
-                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                            value[col_num], data_format)
+                        # if the value is null
+                        if pd.isna(value[col_num]) and replace_nulls == True:
+                            # insert null value and apply null formatting
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                null_value, null_format)
+                        else:
+                            # insert the data and apply specified formatting (no border)
+                            sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                value[col_num], data_format)
         else:
             pass   
 
@@ -2392,7 +2218,8 @@ def set_multiindex_column_widths(df, wb, sheet, column_offset=0, method='headers
 ###                 NO OR SINGLE ROW INDEX AND TWO LEVEL COLUMN MULITINDEX DATAFRAMES                 ###
 
 
-def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None):
+def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=None, replace_nulls=True, null_value='-', \
+    null_align='center'):
 
     # This function will insert your data in desired cells and apply a right border to the last column of each first level category
     ## Can be used on any dataframe
@@ -2421,6 +2248,11 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
     #       'date_alt' = human-friendly date (ex 8/14/1992)
     #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
     #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
+
+    import pandas as pd
 
     # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
     try:
@@ -2444,7 +2276,31 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
         # else number of row indices is how many row index names there are    
         num_row_indices = len(df.index.names)
 
+    # error if it is a row multiindex
+    if num_row_indices > 1:
+        raise Exception(f"Function is only meant with datasets with a single row index or no row index. \
+            The number of row indices your data has is {num_row_indices}.")
+
     
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+        null_right_format = wb.add_format({'right':True, 'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+        null_right_format = wb.add_format({'right':True, 'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
+        null_right_format = wb.add_format({'right':True, 'align':'right'})
+
+
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
         'date_alt','datetime','datetime_alt']
@@ -2514,25 +2370,50 @@ def insert_col_multiindex_data(df, wb, sheet, header_offset=0, column_offset=0, 
             if data_type == None or data_type == 'text':
                 # for the last row per first index category:
                 if (col_num)%header2_n==0:
-                    # insert data with a bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_right_format)
+                    # if the value is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply right border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_right_format)
+                    else:
+                        # insert data with a bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
+                            data_right_format)
                 else:
-                    # insert data with no formatting
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
+                    # if the value is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply null format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_format)
+                    else:
+                        # insert data with no formatting
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices])
             else:
                 # else for the last row per first index category:
                 if (col_num)%header2_n==0:
-                    # insert the data and apply the specified formatting with bottom border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_right_format)
+                    # if the value is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply right border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_right_format)
+                    else:
+                        # insert the data and apply the specified formatting with bottom border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, \
+                            value[col_num-num_row_indices], data_right_format)
                 else:
-                    # insert the data and apply specified formatting (no border)
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, value[col_num-num_row_indices],\
-                        data_format)
+                    # if the value is null
+                    if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
+                        # insert null value and apply null format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value,\
+                            null_format)
+                    else:
+                        # insert the data and apply specified formatting (no border)
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, \
+                            value[col_num-num_row_indices], data_format)
                     
 
-def set_col_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0):
+def set_col_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0, replace_nulls=True, \
+    null_value='-', null_align='center'):
 
     # This function will apply the specified formatting to the all columns in column level 2 matching the column name
     ## Can work on dataframes with any number of row indices and two column header levels
@@ -2567,6 +2448,29 @@ def set_col_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0
     #       'header' sets width based on the length of column names
     #       'data' sets width based on the length of the longest data point in the column
     #       'all' sets width based off the column name or longest data point, whichever is larger
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
+
+    import pandas as pd
+
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+        null_right_format = wb.add_format({'right':True, 'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+        null_right_format = wb.add_format({'right':True, 'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
+        null_right_format = wb.add_format({'right':True, 'align':'right'})
 
     # list of valid dtype args
     valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
@@ -2633,6 +2537,11 @@ def set_col_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0
         # else number of row indices is how many row index names there are    
         num_row_indices = len(df.index.names)
 
+    # error if it is a row multiindex
+    if num_row_indices > 1:
+        raise Exception(f"Function is only meant with datasets with a single row index or no row index. \
+            The number of row indices your data has is {num_row_indices}.")
+
     # get number of unique columns in header row two
     cols_per_major_col = len(df.columns.get_level_values(1).unique())
 
@@ -2657,15 +2566,27 @@ def set_col_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0
             if (col_num+1)%cols_per_major_col==0:
                 # iterate through rows containing data
                 for row_num, value in enumerate(df.values):
-                    # insert data and formatting with right border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                        value[col_num], data_right_format)
+                    # if the value is null
+                    if pd.isna(value[col_num]) and replace_nulls == True:
+                        # insert null value and apply right border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                           null_value, null_right_format)
+                    else:
+                        # insert data and formatting with right border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num], data_right_format)
             else:
                 # for all other columns iterate through rows containing data
                 for row_num, value in enumerate(df.values):
-                    # insert data and formatting with no border
-                    sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
-                        value[col_num], data_format)
+                    # if the value is null
+                    if pd.isna(value[col_num]) and replace_nulls == True:
+                        # insert null value and apply null format
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                           null_value, null_format)
+                    else:
+                        # insert data and formatting with no border
+                        sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                            value[col_num], data_format)
         else:
             # skip all columns that do not match specified column name
             pass  
@@ -2868,7 +2789,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                     # for the last row per first index category:
                     if (col_num-col_subtract)%header2_n==0:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_corner_format)
                         else:
@@ -2877,7 +2798,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                                 value[col_num-num_row_indices], data_corner_format)
                     #else if the cell is on the last row but not the last column:
                     else:
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_bottom_format)
                         else:
@@ -2889,7 +2810,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                    # for the last row per first index category:
                     if (col_num-col_subtract)%header2_n==0:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_right_format)
                         else:
@@ -2899,7 +2820,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                     # for all other cells
                     else:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_format)
                         else:
@@ -2912,7 +2833,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                     # for the last row per first index category:
                     if (col_num-col_subtract)%header2_n==0:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_corner_format)
                         else:
@@ -2921,7 +2842,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                                 value[col_num-num_row_indices], data_corner_format)
                     #else if the cell is on the last row but not the last column:
                     else:
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_bottom_format)
                         else:
@@ -2933,7 +2854,7 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                    # for the last row per first index category:
                     if (col_num-col_subtract)%header2_n==0:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_right_format)
                         else:
@@ -2943,14 +2864,312 @@ def insert_4d_data(df, wb, sheet, header_offset=0, column_offset=0, data_type=No
                     # for all other cells
                     else:
                         # we check if the value of the cell is null
-                        if pd.isna(value[col_num-num_row_indices]):
+                        if pd.isna(value[col_num-num_row_indices]) and replace_nulls == True:
                             # replace value with null value and apply null formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, null_value, null_format)
                         else:
                             # otherwise insert data and apply formatting
                             sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset, \
-                                value[col_num-num_row_indices], data_format) 
+                                value[col_num-num_row_indices], data_format)
+                                
 
+def set_4d_multiindex_dtype(df, wb, sheet, col_name, data_type, column_offset=0, header_offset=0, replace_nulls=True, null_value='-', \
+    null_align='center'):
+
+    # This function will insert your data in desired cells and apply a right border to the last column of each first level category
+    # and a bottom border to the last row of each major (first) row category for the specified column
+    ## used on data with a two row column multiindex and any number of row multiindices
+
+    # ARGUMENTS
+    
+    ## MANDATORY:
+    ### df is your data from your dataframe
+    ### wb is your workbook
+    ### sheet is your worksheet
+
+    ## OPTIONAL:
+    ### header_offset is the number of rows to skip if you want blank rows on top for title etc. defaults to 0
+    ### column_offset is the number of columns to shift to the right if you do not want your table to start on column A. defaults to 0
+    ### data_type is the type of numeric data:
+    #### this arg should only be used if all your data is the same data type!
+    #       'numeric' = comma-separated integer (ex 1,200)
+    #       'decimal_1' = comma-separated decimal to tenths (ex 1,200.0)
+    #       'decimal_2' = comma-separated decimal to hundredths (ex 1,200.00)
+    #       'dollar' = comma-separated whole number currency (USD) (ex $1,200)
+    #       'dollar_cents' = comma-separated decimal currency (USD) to hundredths (ex $1,200.00)
+    #       'percent' = integer percentage (ex 20%)
+    #       'percent_1' = decimal percentage to tenths (ex 20.0%)
+    #       'percent_2' = decimal percentage to hundredths (ex 20.00%)
+    #       'date' = sql-friendly date (ex 1992-08-14)
+    #       'date_alt' = human-friendly date (ex 8/14/1992)
+    #       'datetime' = sql-friendly datetime (ex 1992-08-14 17:26:00)
+    #       'datetime_alt' = human-friendly datetime (ex 8/14/1992 5:22 PM)
+    ### replace_nulls will replace null values with the specified replacement. defaults to true
+    ### null_value is what replaces nulls. defaults to '-'
+    ### null_align is the horizontal alignment for null values. defaults to center
+
+    import pandas as pd
+    
+    # this will try to get the count of column levels you have if it's a multiindex but if it fails since it's only one level
+    try:
+        num_col_indices = len(df.columns.levshape)
+    # then it will assign a value of 1 for column_indices
+    except:
+        raise Exception('Data does not have a columns multiindex')
+
+    # error if there are not 2 column header rows
+    if num_col_indices == 2:
+        pass 
+    else:
+        raise Exception(f"Function is only meant for datasets with two header rows. \
+            The number of header rows your data has is {num_col_indices}.")
+
+    #getting count of row_indices
+    # if there is no index raise error
+    if None in df.index.names:
+        raise Exception("No index set on dataframe.")
+    else:
+        # else number of row indices is how many row index names there are    
+        num_row_indices = len(df.index.names)
+
+    # exit function with error if it is not a multiindex
+    if num_row_indices == 1:
+        raise Exception("Function is not meant for single row index datasets.")
+    else:
+        pass
+
+    # check for valid alignment input
+    valid_align = ['center','left','right']
+
+    if null_align in valid_align:
+        pass
+    else:
+        raise ValueError(f"{null_align} is not a valid alignment option. Valid options are {valid_align}")
+        
+    # create list of all col_names
+    col_name_list = [col_name for col_name in df.columns.get_level_values(1)]
+
+    if col_name not in col_name_list:
+        raise ValueError(f"{col_name} not in dataframe. Columns in data are: {col_name_list}")
+    else:
+        pass
+
+    if null_align == 'center':
+        null_format = wb.add_format({'align':'center'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'center'})
+        null_right_format = wb.add_format({'right':True, 'align':'center'})
+        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'center'})
+    elif null_align == 'left':
+        null_format = wb.add_format({'align':'left'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'left'})
+        null_right_format = wb.add_format({'right':True, 'align':'left'})
+        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'left'})
+    elif null_align == 'right':
+        null_format = wb.add_format({'align':'right'})
+        null_bottom_format = wb.add_format({'bottom':True, 'align':'right'})
+        null_right_format = wb.add_format({'right':True, 'align':'right'})
+        null_corner_format = wb.add_format({'right':True,'bottom':True, 'align':'right'})
+
+    # list of valid dtype args
+    valid_dtypes = ['numeric','decimal_1','decimal_2','dollar','dollar_cents','percent','percent_1','percent_2','date',\
+        'date_alt','datetime','datetime_alt']    
+
+    # this if statement sets the formatting based off the data_type argument
+    ## it will raise an error to tell the user if they have entered an invalid data_type argument
+    if data_type == 'numeric':
+        data_format = wb.add_format({'num_format':'#,##0'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0','bottom':True})
+        data_right_format = wb.add_format({'num_format':'#,##0','right':True})
+        data_corner_format = wb.add_format({'num_format':'#,##0','right':True,'bottom':True})
+    elif data_type == 'decimal_1':
+        data_format = wb.add_format({'num_format':'#,##0.0'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0.0','bottom':True})
+        data_right_format = wb.add_format({'num_format':'#,##0.0','right':True})
+        data_corner_format = wb.add_format({'num_format':'#,##0.0','right':True,'bottom':True})
+    elif data_type == 'decimal_2':
+        data_format = wb.add_format({'num_format':'#,##0.00'})
+        data_bottom_format = wb.add_format({'num_format':'#,##0.00','bottom':True})
+        data_right_format = wb.add_format({'num_format':'#,##0.00','right':True})
+        data_right_format = wb.add_format({'num_format':'#,##0.00','right':True,'bottom':True})
+    elif data_type == 'dollar':
+        data_format = wb.add_format({'num_format':'$#,##0'})
+        data_bottom_format = wb.add_format({'num_format':'$#,##0','bottom':True})
+        data_right_format = wb.add_format({'num_format':'$#,##0','right':True})
+        data_corner_format = wb.add_format({'num_format':'$#,##0','right':True,'bottom':True})
+    elif data_type == 'dollar_cents':
+        data_format = wb.add_format({'num_format':'$#,##0.00'})
+        data_bottom_format = wb.add_format({'num_format':'$#,##0.00','bottom':True})
+        data_right_format = wb.add_format({'num_format':'$#,##0.00','right':True})
+        data_corner_format = wb.add_format({'num_format':'$#,##0.00','right':True,'bottom':True})
+    elif data_type == 'percent':
+        data_format = wb.add_format({'num_format':'0%'})
+        data_bottom_format = wb.add_format({'num_format':'0%','bottom':True})
+        data_right_format = wb.add_format({'num_format':'0%','right':True})
+        data_corner_format = wb.add_format({'num_format':'0%','right':True,'bottom':True})
+    elif data_type == 'percent_1':
+        data_format = wb.add_format({'num_format':'0.0%'})
+        data_bottom_format = wb.add_format({'num_format':'0.0%','bottom':True})
+        data_right_format = wb.add_format({'num_format':'0.0%','right':True})
+        data_corner_format = wb.add_format({'num_format':'0.0%','right':True,'bottom':True})
+    elif data_type == 'percent_2':
+        data_format = wb.add_format({'num_format':'0.00%'})
+        data_bottom_format = wb.add_format({'num_format':'0.00%','bottom':True})
+        data_right_format = wb.add_format({'num_format':'0.00%','right':True})
+        data_corner_format = wb.add_format({'num_format':'0.00%','right':True,'bottom':True})
+    elif data_type == 'date':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd'})
+        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd','bottom':True})
+        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd','right':True})
+        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd','right':True,'bottom':True})
+    elif data_type == 'date_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy'})
+        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy','bottom':True})
+        data_right_format = wb.add_format({'num_format':'m/d/yyyy','right':True})
+        data_corner_format = wb.add_format({'num_format':'m/d/yyyy','right':True,'bottom':True})
+    elif data_type == 'datetime':
+        data_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm'})
+        data_bottom_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','bottom':True})
+        data_right_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','right':True})
+        data_corner_format = wb.add_format({'num_format':'yyyy-mm-dd h:mm','right':True,'bottom':True})
+    elif data_type == 'datetime_alt':
+        data_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM'})
+        data_bottom_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','bottom':True})
+        data_right_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','right':True})
+        data_corner_format = wb.add_format({'num_format':'m/d/yyyy h:mm AM/PM','right':True,'bottom':True})
+    elif data_type == 'text':
+        print("Data types are text by default. No error, continuing function.")
+        data_bottom_format = wb.add_format({'bottom':True})
+        data_right_format = wb.add_format({'right':True})
+        data_corner_format = wb.add_format({'right':True,'bottom':True})
+    elif data_type == None:
+        data_bottom_format = wb.add_format({'bottom':True})
+        data_right_format = wb.add_format({'right':True})
+        data_corner_format = wb.add_format({'right':True,'bottom':True})
+    else:
+        raise ValueError(f"{data_type} is not a valid data_format option. Valid options are: {valid_dtypes}")
+
+    # determining how many rows are in the major (leftmost) index by dividing the total row count by index[0] unique values
+    rows_per_major_index = int(len(df)/len(df.index.unique(0)))
+
+    # number of header row 2 values which are what we need to loop over
+    header2_n = df.columns.levshape[1]
+
+    # getting the column count
+
+    # getting the count of regular columns
+    num_cols = len(df.columns)
+    # adding num_cols and number of row indices together for total column count
+    total_cols = num_row_indices + num_cols
+
+    # value to subtract to correctly apply right border
+    col_subtract = num_row_indices - 1
+
+    # iterating over data columns excluding row index columns:
+    for col_num, df_col_name in enumerate(df.columns):
+        # if the full (multilevel) column name contains the specificed column name:
+        if col_name in df_col_name:
+            # iterating over rows containing data:
+            for row_num, value in enumerate(df.values):
+                # if no data type is assigned:
+                if data_type == None or data_type == 'text':
+                    # for the last row per first index category:
+                    if (row_num + 1)%rows_per_major_index==0:
+                        # for the last row per first index category:
+                        if (col_num+1)%header2_n==0:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_corner_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_corner_format)
+                        #else if the cell is on the last row but not the last column:
+                        else:
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices,\
+                                     null_value, null_bottom_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_bottom_format)
+                    #else if the row is NOT the last month row
+                    else:
+                    # for the last row per first index category:
+                        if (col_num+1)%header2_n==0:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_right_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_right_format)
+                        # for all other cells
+                        else:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_format)
+                            else:
+                                # otherwise insert data
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num])
+                # else if data_type is not None or text:
+                else:
+                    if (row_num + 1)%rows_per_major_index==0:
+                        # for the last row per first index category:
+                        if (col_num+1)%header2_n==0:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices \
+                                    , null_value, null_corner_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_corner_format)
+                        #else if the cell is on the last row but not the last column:
+                        else:
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_bottom_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_bottom_format)
+                    #else if the row is NOT the last month row
+                    else:
+                    # for the last row per first index category:
+                        if (col_num+1)%header2_n==0:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_right_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_right_format)
+                        # for all other cells
+                        else:
+                            # we check if the value of the cell is null
+                            if pd.isna(value[col_num]) and replace_nulls == True:
+                                # replace value with null value and apply null formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    null_value, null_format)
+                            else:
+                                # otherwise insert data and apply formatting
+                                sheet.write(row_num + num_col_indices + header_offset, col_num + column_offset + num_row_indices, \
+                                    value[col_num], data_format) 
+        else:
+            # skip all columns that do not match specified column name
+            pass    
 
 
 ######################## EDGE BORDER FORMATTING ##################################
